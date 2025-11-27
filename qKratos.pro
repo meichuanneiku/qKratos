@@ -22,6 +22,7 @@ SOURCES += \
         api/user/v1/user_route.cpp \
         cmd/server/main.cpp \
         internal/biz/user/user_biz.cpp \
+        internal/conf/conf.cpp \
         internal/data/user/user_repo.cpp \
         internal/server/http_server.cpp \
         internal/service/user/user_service.cpp
@@ -34,6 +35,10 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     api/user/v1/user_route.h \
     internal/biz/user/user_biz.h \
+    internal/conf/conf.h \
     internal/data/user/user_repo.h \
     internal/server/http_server.h \
     internal/service/user/user_service.h
+
+DISTFILES += \
+    config/bootstrap.json
