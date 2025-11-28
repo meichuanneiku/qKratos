@@ -1,6 +1,6 @@
 QT -= gui
 
-QT += core network httpserver
+QT += core network httpserver sql
 
 TARGET = qratos-server
 
@@ -23,7 +23,9 @@ SOURCES += \
         cmd/server/main.cpp \
         internal/biz/user/user_biz.cpp \
         internal/conf/conf.cpp \
+        internal/data/data.cpp \
         internal/data/user/user_repo.cpp \
+        internal/pkg/errorinfo/error_info.cpp \
         internal/server/http_server.cpp \
         internal/service/user/user_service.cpp
 
@@ -36,9 +38,11 @@ HEADERS += \
     api/user/v1/user_route.h \
     internal/biz/user/user_biz.h \
     internal/conf/conf.h \
+    internal/data/data.h \
     internal/data/user/user_repo.h \
+    internal/pkg/errorinfo/error_info.h \
     internal/server/http_server.h \
     internal/service/user/user_service.h
 
 DISTFILES += \
-    config/bootstrap.json
+    configs/config.json

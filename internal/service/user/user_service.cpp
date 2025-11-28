@@ -27,13 +27,13 @@ QHttpServerResponse UserServiceImpl::CreateUser(const QHttpServerRequest& req)
                                QHttpServerResponse::StatusCode::Created);
 }
 
-QHttpServerResponse UserServiceImpl::GetUser(const QRegularExpressionMatch& match)
+QHttpServerResponse UserServiceImpl::GetUser(const int &systemId, const QRegularExpressionMatch& match)
 {
     bool ok;
     int id = match.captured(1).toInt(&ok);
     if (!ok) return QHttpServerResponse("text/plain; charset=utf-8","invalid id", QHttpServerResponse::StatusCode::BadRequest);
 
-    auto user = m_biz.GetUser(id);
+    auto user = m_biz.GetUser(systemId, QString::number(id));
     if (user.isEmpty()) return QHttpServerResponse("text/plain; charset=utf-8","not found", QHttpServerResponse::StatusCode::NotFound);
 
     return QHttpServerResponse(QJsonDocument(user).toJson());
@@ -43,19 +43,19 @@ QHttpServerResponse UserServiceImpl::DeleteUser(const QRegularExpressionMatch& m
 {
     bool ok;
     int id = match.captured(1).toInt(&ok);
-    if (!ok) return QHttpServerResponse("text/plain; charset=utf-8","invalid id", QHttpServerResponse::StatusCode::BadRequest);
+    if (!ok) return QHttpServerResponse("text/plain; charset=utf-8","invalid id", QHttpServerResponse::StatusCode::NoContent);
 
     m_biz.DeleteUser(id);
     return QHttpServerResponse("deleted");
 }
 
-QHttpServerResponse UserServiceImpl::GetUserByIdDirect(const int &id)
+QHttpServerResponse UserServiceImpl::GetUserByIdDirect(const int &systemId, const QString &id)
 {
-    auto user = m_biz.GetUser(id);
-        if (user.isEmpty())
-            return QHttpServerResponse("text/plain; charset=utf-8","not found11111", QHttpServerResponse::StatusCode::NotFound);
+    auto user = m_biz.FindById(systemId, id);
+    if (user.isEmpty())
+        return QHttpServerResponse("text/plain; charset=utf-8", "1005", QHttpServerResponse::StatusCode::NoContent);
 
-        return QHttpServerResponse(QJsonDocument(user).toJson());
+    return QHttpServerResponse(user);
 }
 
 QHttpServerResponse UserServiceImpl::DeleteUser(const int &id)

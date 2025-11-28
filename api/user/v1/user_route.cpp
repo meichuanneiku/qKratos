@@ -14,6 +14,8 @@ void RegisterUserServiceRoutes(QHttpServer& server, UserServiceImpl* impl)
                      return impl->CreateUser(req);
                  });
 
+
+
 //    server.route("/api/v1/users/<arg>",
 //                 [impl](const QRegularExpressionMatch& match) {
 //                     return impl->GetUser(match);
@@ -65,11 +67,13 @@ void RegisterUserServiceRoutes(QHttpServer& server, UserServiceImpl* impl)
 
 
 
-    server.route("/query/",QHttpServerRequest::Method::Delete, [] (qint32 id, const QHttpServerRequest &request) {
-          return QString("%1/query/%2").arg(host(request)).arg(id);
+    server.route("/api/v1/users/<arg>",QHttpServerRequest::Method::Get, [&] (quint64 id, const QHttpServerRequest &request) {
+
+        QByteArray systemId = request.headers().value("systemid").toByteArray();
+        return impl->GetUserByIdDirect(systemId.toInt(), QString::number(id));
       });
-    server.route("/api/v1/users/",QHttpServerRequest::Method::Get, [&] (qint32 id, const QHttpServerRequest &request) {
-//          return QString("%1/query222/%2").arg(host(request)).arg(id);
-        return impl->GetUserByIdDirect(id);
-      });
+
+//    server.route("/api/v1/users",QHttpServerRequest::Method::Post, [impl] (const QHttpServerRequest &req) {
+//        return impl->GetUserList();
+//      });
 }

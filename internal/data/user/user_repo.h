@@ -3,7 +3,10 @@
 
 #include <QHash>
 #include <QJsonObject>
+#include <QDebug>
+#include "../data.h"
 
+//#include <QSqlQuery>
 class UserRepo
 {
 public:
@@ -15,8 +18,8 @@ public:
 //    static UserRepo& instance() { static UserRepo r; return r; }
 
     void Save(const QJsonObject& u) { storage[u["id"].toInt()] = u; }
-    QJsonObject FindById(int id) const { return storage.value(id); }
-    void Remove(int id) { storage.remove(id); }
+    QSqlQuery FindById(const int& systemId, QString id) const;// { return storage.value(id); }
+    int Remove(int id) { return storage.remove(id); }
 
 private:
     // 私有构造函数，防止外部实例化

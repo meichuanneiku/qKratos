@@ -7,17 +7,18 @@
 #include "../../internal/service/user/user_service.h"
 #include "../../api/user/v1/user_route.h"
 #include "../../internal/conf/conf.h"
+#include "../../internal/data/data.h"
 
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
 
-    app.setApplicationName("qratos");
+    app.setApplicationName("qKratos");
     app.setApplicationVersion("1.0.0");
 
     // ==================== Kratos 正宗命令行解析 ====================
     QCommandLineParser parser;
-    parser.setApplicationDescription("Qratos - C++ version of Go Kratos framework");
+    parser.setApplicationDescription("Qkratos - C++ version of Go Kratos framework");
     parser.addHelpOption();
     parser.addVersionOption();
 
@@ -33,18 +34,23 @@ int main(int argc, char *argv[])
     qInfo() << "Loading config from:" << QDir::cleanPath(configPath);
 
     // ==================== 加载配置 ====================
-    if (!Config::instance().load(configPath)) {
+    if (!Config::instance()->load(configPath)) {
         qCritical() << "Failed to load config file:" << configPath;
         return -1;
     }
 
-    HttpServer server;
+    if (!DataBaseManager::instance()->connect()) {
+        return -1;
+    }
+
+    ServerConfig serverConfig = Config::instance()->server();
+    HttpServer server(serverConfig.http.timeout);
 
     server.registerService(new UserServiceImpl, RegisterUserServiceRoutes);
     // 以后加角色、部门等模块只加一行
     // server.registerService(new RoleServiceImpl, RegisterRoleServiceRoutes);
 
-    server.listen(Config::instance().server().port);
+    server.listen(serverConfig.http.addr, serverConfig.http.port);
 
     return app.exec();
 }

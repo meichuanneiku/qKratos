@@ -1,0 +1,35 @@
+{
+	"server": {
+		"http": {
+			"addr": "0.0.0.0",
+			"port": 8080,
+			"timeout": 1000
+		},
+		"ws": {
+			"addr": "0.0.0.0",
+			"port": 7789
+		}
+	},
+	"data": {
+		"mysql": {
+			"host": "pooler.supabase.com",
+			"port": 3306,
+			"user": "mysql",
+			"password": "1",
+			"dbname": "qt"
+		},
+		"dmsql": {
+			"host": "192.168.2.111",
+			"port": 5236,
+			"user": "SYSDBA",
+			"password": "Dameng123",
+			"dbname": "DM8",
+			"driverType": "QDM"
+		},
+		"redis": {
+			"addr": "43.252.228.116:6379",
+			"password": "",
+			"db": 0
+		}
+	}
+}

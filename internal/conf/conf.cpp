@@ -8,32 +8,18 @@
 #include <QFileInfo>
 #include <QCoreApplication>
 
+Config *Config::m_instance = 0;
+
+Config *Config::instance()
+{
+    if(m_instance == 0)
+        m_instance = new Config();
+    return m_instance;
+}
+
 bool Config::load(const QString& inputPath)
 {
-    /*QFile file(path);
-    if (!file.open(QIODevice::ReadOnly)) {
-        qWarning() << "Config file not found, use default:" << path;
-        return false;
-    }
-
-    QJsonParseError err;
-    QJsonDocument doc = QJsonDocument::fromJson(file.readAll(), &err);
-    if (err.error != QJsonParseError::NoError) {
-        qCritical() << "Parse config failed:" << err.errorString();
-        return false;
-    }
-
-    auto root = doc.object();
-    auto serverObj = root["server"].toObject()["http"].toObject();
-
-    server_.addr = serverObj["addr"].toString("0.0.0.0");
-    server_.port = serverObj["port"].toInt(8080);
-    server_.timeoutSec = serverObj["timeout"].toString("30s").remove('s').toInt();
-
-    qInfo() << "Config loaded: HTTP listening on" << server_.addr << ":" << server_.port;*/
-
     QString path = inputPath;
-    if (path.isEmpty()) path = "config/config.yaml";
 
     QFileInfo info(path);
     if (!info.exists()) {
@@ -66,13 +52,40 @@ bool Config::load(const QString& inputPath)
     }
 
     auto root = doc.object();
-    auto http = root["server"].toObject()["http"].toObject();
+    auto server = root["server"].toObject();
+    auto http = server["http"].toObject();
+    m_server.http.addr = http["addr"].toString("0.0.0.0");
+    m_server.http.port = http["port"].toInt(8888);
+    m_server.http.timeout = http["timeout"].toInt(1000);
 
-    server_.addr = http["addr"].toString("0.0.0.0");
-    server_.port = http["port"].toInt(8080);
+    auto ws = server["ws"].toObject();
+    m_server.ws.addr = ws["addr"].toString("0.0.0.0");
+    m_server.ws.port = ws["port"].toInt(7777);
+
+
+    qInfo() << "HTTP Server:" << m_server.http.addr << ":" << m_server.http.port;
+
+    auto dataObj = root["data"].toObject();
+    auto mysql = dataObj["mysql"].toObject();
+    m_data.mysql.host = mysql["host"].toString();
+    m_data.mysql.port = mysql["port"].toInt();
+    m_data.mysql.user = mysql["user"].toString();
+    m_data.mysql.password = mysql["password"].toString();
+    m_data.mysql.dbname = mysql["dbname"].toString();
+
+    auto dmsql = dataObj["dmsql"].toObject();
+    m_data.dmsql.host = dmsql["host"].toString();
+    m_data.dmsql.port = dmsql["port"].toInt();
+    m_data.dmsql.user = dmsql["user"].toString();
+    m_data.dmsql.password = dmsql["password"].toString();
+    m_data.dmsql.dbname = dmsql["dbname"].toString();
+    m_data.dmsql.driverType = dmsql["driverType"].toString();
+
+    auto redis = dataObj["redis"].toObject();
+    m_data.redis.addr = redis["addr"].toString();
+    m_data.redis.password = redis["password"].toString();
+    m_data.redis.db = redis["db"].toInt();
 
     qInfo() << "Config loaded successfully";
-    qInfo() << "HTTP Server:" << server_.addr << ":" << server_.port;
-
     return true;
 }
