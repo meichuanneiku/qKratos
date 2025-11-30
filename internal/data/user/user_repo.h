@@ -21,6 +21,8 @@ public:
     QSqlQuery FindById(const int& systemId, QString id) const;// { return storage.value(id); }
     int Remove(int id) { return storage.remove(id); }
 
+     QSqlQuery FindByUsername(const int& systemId, const QString& username) const;// { return storage.value(id); }
+
 private:
     // 私有构造函数，防止外部实例化
     UserRepo() = default;

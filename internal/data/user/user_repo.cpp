@@ -30,3 +30,8 @@ QSqlQuery UserRepo::FindById(const int &systemId, QString id) const
 
     return query;
 }
+
+QSqlQuery UserRepo::FindByUsername(const int &systemId, const QString &username) const
+{
+
+}

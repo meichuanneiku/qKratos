@@ -1,8 +1,8 @@
 #ifndef HTTPSERVER_H
 #define HTTPSERVER_H
 
-#include <QtHttpServer/qhttpserver.h>
-
+//#include <QtHttpServer/qhttpserver.h>
+#include <QHttpServer>
 #include <QJsonParseError>
 #include <QJsonObject>
 
@@ -21,7 +21,7 @@ public:
 private:
 
     static QHttpServerResponse responseMiddleware(QHttpServerResponse &&r, const QHttpServerRequest &req);
-    static QString getMessage(int code, const QString &defaultMsg);
+    static QString getMessage(int status);
 
     QHttpServer m_server;
 };

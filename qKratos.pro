@@ -25,7 +25,10 @@ SOURCES += \
         internal/conf/conf.cpp \
         internal/data/data.cpp \
         internal/data/user/user_repo.cpp \
+        internal/pkg/casbin/casbin_dm_adapter.cpp \
         internal/pkg/errorinfo/error_info.cpp \
+        internal/pkg/jwt/jwt.cpp \
+        internal/pkg/middleware/auth.cpp \
         internal/server/http_server.cpp \
         internal/service/user/user_service.cpp
 
@@ -40,9 +43,35 @@ HEADERS += \
     internal/conf/conf.h \
     internal/data/data.h \
     internal/data/user/user_repo.h \
+    internal/pkg/casbin/casbin.h \
+    internal/pkg/casbin/casbin_dm_adapter.h \
     internal/pkg/errorinfo/error_info.h \
+    internal/pkg/jwt/jwt.h \
+    internal/pkg/middleware/auth.h \
+    internal/pkg/response/response.h \
     internal/server/http_server.h \
     internal/service/user/user_service.h
 
 DISTFILES += \
     configs/config.json
+
+INCLUDEPATH += $$PWD/third_party/casbin-cpp/include
+SOURCES += \
+    third_party/casbin-cpp/casbin/enforcer.cpp \
+    third_party/casbin-cpp/casbin/enforcer_cached.cpp \
+    third_party/casbin-cpp/casbin/enforcer_synced.cpp \
+    third_party/casbin-cpp/casbin/model/model.cpp \
+    third_party/casbin-cpp/casbin/model/assertion.cpp \
+    third_party/casbin-cpp/casbin/model/evaluator.cpp \
+    third_party/casbin-cpp/casbin/model/function.cpp \
+#    third_party/casbin-cpp/casbin/util.cpp \
+#    third_party/casbin-cpp/casbin/built_in_functions.cpp \
+#    third_party/casbin-cpp/casbin/effect/effect.cpp \
+    third_party/casbin-cpp/casbin/effect/default_effector.cpp \
+    third_party/casbin-cpp/casbin/rbac/default_role_manager.cpp \
+#    third_party/casbin-cpp/casbin/rbac/rbac.cpp \
+    third_party/casbin-cpp/casbin/persist/file_adapter/file_adapter.cpp \
+#    third_party/casbin-cpp/casbin/persist/filtered_adapter.cpp \
+#    third_party/casbin-cpp/casbin/persist/persist.cpp \
+    third_party/casbin-cpp/casbin/logger.cpp \
+    third_party/casbin-cpp/casbin/config/config.cpp
