@@ -22,7 +22,7 @@ public:
     QHttpServerResponse GetUserByIdDirect(const QHttpServerRequest &request);
 
 
-//    QHttpServerResponse GetProfile(const QHttpServerRequest &request);
+    QHttpServerResponse GetProfile(const QHttpServerRequest &request);
 
     QHttpServerResponse Login(const QHttpServerRequest &request);
 

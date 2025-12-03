@@ -11,6 +11,7 @@ enum ErrorCode : int {
     UserIdInvalid    = 1006,
     UserNotFound     = 1005,
     Unauthorized     = 1007,
+    Forbidden =1008,
     UnknownError     = 9999
 };
 

@@ -25,7 +25,7 @@ SOURCES += \
         internal/conf/conf.cpp \
         internal/data/data.cpp \
         internal/data/user/user_repo.cpp \
-#        internal/pkg/casbin/casbin_dm_adapter.cpp \
+        internal/pkg/casbin/casbin_dm_adapter.cpp \
         internal/pkg/jwt/jwt.cpp \
         internal/server/http_server.cpp \
         internal/service/user/user_service.cpp
@@ -41,8 +41,7 @@ HEADERS += \
     internal/conf/conf.h \
     internal/data/data.h \
     internal/data/user/user_repo.h \
-#    internal/pkg/casbin/casbin.h \
-#    internal/pkg/casbin/casbin_dm_adapter.h \
+    internal/pkg/casbin/casbin_dm_adapter.h \
     internal/pkg/error/error_code.h \
     internal/pkg/jwt/jwt.h \
     internal/pkg/middleware/auth.h \
@@ -73,3 +72,8 @@ DISTFILES += \
 ##    third_party/casbin-cpp/casbin/persist/persist.cpp \
 #    third_party/casbin-cpp/casbin/logger.cpp \
 #    third_party/casbin-cpp/casbin/config/config.cpp
+
+
+
+INCLUDEPATH += $$PWD/third_party/casbin-cpp/include
+LIBS += -L$$PWD/third_party/casbin-cpp/bin -lcasbin

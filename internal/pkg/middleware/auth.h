@@ -7,13 +7,15 @@
 
 #include "../jwt/jwt.h"
 
-#include "../error/error_code.h"
+//#include "../error/error_code.h"
+#include "../casbin/casbin_dm_adapter.h"
 
 #include "../response/response.h"
 
 using namespace qKratos::response;
 using namespace qKratos::JWT;
-using namespace qKratos::Error;
+//using namespace qKratos::Error;
+using namespace qKratos::rbac;
 
 namespace qKratos::middleware {
 
@@ -34,6 +36,21 @@ inline QVariant currentUser()
 inline void setCurrentUser(const QVariant& user)
 {
     currentUserStorage().setLocalData(user);
+}
+
+// 工具函数：Method → QString
+inline QString methodToString(QHttpServerRequest::Method m) {
+    switch (m) {
+    case QHttpServerRequest::Method::Get:     return "GET";
+    case QHttpServerRequest::Method::Post:    return "POST";
+    case QHttpServerRequest::Method::Put:     return "PUT";
+    case QHttpServerRequest::Method::Delete:  return "DELETE";
+    case QHttpServerRequest::Method::Head:    return "HEAD";
+    case QHttpServerRequest::Method::Options: return "OPTIONS";
+    case QHttpServerRequest::Method::Patch:   return "PATCH";
+    case QHttpServerRequest::Method::Connect: return "CONNECT";
+    default:                                  return "UNKNOWN";
+    }
 }
 
 // JWT 中间件（inline 实现，保持简洁）
@@ -60,6 +77,16 @@ inline auto authMiddleware()
             }
 
             setCurrentUser(result);
+
+            // Casbin 权限判断
+            Claims claims = result.value<Claims>();
+            QString userId = claims.sub;
+            QString method = methodToString(req.method());
+
+            if (!enforce(userId, path, method)) {
+                return Status(ErrorCode::Forbidden);
+            }
+
             return std::move(resp);
         };
 }

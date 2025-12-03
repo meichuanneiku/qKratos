@@ -3,8 +3,11 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
+#include "../../pkg/middleware/auth.h"
+
 using namespace qKratos::JWT;
 using namespace qKratos::response;
+using namespace qKratos::middleware;
 
 QHttpServerResponse UserServiceImpl::CreateUser(const QHttpServerRequest& req)
 {
@@ -73,11 +76,11 @@ QHttpServerResponse UserServiceImpl::GetUserByIdDirect(const QHttpServerRequest 
    return GetUserByIdDirect(systemId.toInt(), id);
 }
 
-/*QHttpServerResponse UserServiceImpl::GetProfile(const QHttpServerRequest &request)
+QHttpServerResponse UserServiceImpl::GetProfile(const QHttpServerRequest &request)
 {
     QVariant userVar = currentUser();
         if (!userVar.isValid()) {
-            return ErrorResponse(ErrorCode::Unauthorized);
+            return Status(ErrorCode::Unauthorized);
         }
 
         auto claims = userVar.value<Claims>();
@@ -89,13 +92,13 @@ QHttpServerResponse UserServiceImpl::GetUserByIdDirect(const QHttpServerRequest 
 
         auto user = currentUser();
         if (!user.isValid()) {
-            return ErrorResponse(ErrorCode::Unauthorized);
+            return Status(ErrorCode::Unauthorized);
         }
         Claims c = user.value<Claims>();
 
-        return SuccessResponse(data);
+        return JsonResponse(data);
 }
-*/
+
 
 QHttpServerResponse UserServiceImpl::Login(const QHttpServerRequest &request)
 {
