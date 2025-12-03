@@ -22,8 +22,9 @@ static QByteArray base64UrlDecode(const QString& input) {
     return QByteArray::fromBase64(data);
 }
 
-QString sign(const Claims& claims, const QString& secret)
+QString sign(const Claims& claims)
 {
+    const QString secret = Config::instance()->auth().jwtKey;
     QJsonObject header{{"alg","HS256"},{"typ","JWT"}};
     QJsonObject payload = claims.toJson();
 
@@ -36,8 +37,10 @@ QString sign(const Claims& claims, const QString& secret)
     return unsignedToken + "." + base64UrlEncode(signature);
 }
 
-QVariant verify(const QString& token, const QString& secret)
-{
+QVariant verify(const QString& token)
+{    
+    const QString& secret = Config::instance()->auth().jwtKey;
+
     QStringList parts = token.split('.');
     if (parts.size() != 3) return QVariant();
 

@@ -6,10 +6,8 @@
 #include <QHttpServerRequest>
 #include <QRegularExpressionMatch>
 #include "../../biz/user/user_biz.h"
-#include "../../pkg/errorinfo/error_info.h"
-#include"../../pkg/middleware/auth.h"
-
-//#include "../../pkg/response/response.h"
+#include "../../pkg/jwt/jwt.h"
+#include "../../pkg/response/response.h"
 
 //
 //StatusCode::NoContent = 204：成功但无返回内容。因此可以当作返回查询有问题的标志，可以在中间件中作为判断的依据，执行自定义错误的解析功能
@@ -24,7 +22,7 @@ public:
     QHttpServerResponse GetUserByIdDirect(const QHttpServerRequest &request);
 
 
-    QHttpServerResponse GetProfile(const QHttpServerRequest &request);
+//    QHttpServerResponse GetProfile(const QHttpServerRequest &request);
 
     QHttpServerResponse Login(const QHttpServerRequest &request);
 

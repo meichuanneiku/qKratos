@@ -31,12 +31,12 @@
 			"password": "",
 			"db": 0
 		}
-        },
-        "auth":{
-        "jwtKey":"hijbcdefgklmna2324",
-        "expires": 259200,
-        },
-        "casbin":{
-        "path":"configs/authz/casbin_model.conf"
-        }
+	},
+	"auth": {
+		"jwtKey": "hijbcdefgklmna2324",
+		"expires": 259200
+	},
+	"casbin": {
+		"path": "configs/auth/casbin_model.conf"
+	}
 }

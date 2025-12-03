@@ -2,11 +2,6 @@
 
 #include "../../../internal/service/user/user_service.h"
 
-static inline QString host(const QHttpServerRequest &request)
-{
-    return request.headers()[QStringLiteral("Host")].toString();
-}
-
 void RegisterUserServiceRoutes(QHttpServer& server, UserServiceImpl* impl)
 {
     server.route("/api/v1/users", QHttpServerRequest::Method::Post,

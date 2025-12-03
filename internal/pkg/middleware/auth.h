@@ -5,9 +5,13 @@
 #include <QVariant>
 #include <QThreadStorage>
 
-#include "../../pkg/jwt/jwt.h"
-#include "../../pkg/errorinfo/error_info.h"
+#include "../jwt/jwt.h"
 
+#include "../error/error_code.h"
+
+#include "../response/response.h"
+
+using namespace qKratos::response;
 using namespace qKratos::JWT;
 using namespace qKratos::Error;
 
@@ -33,9 +37,9 @@ inline void setCurrentUser(const QVariant& user)
 }
 
 // JWT 中间件（inline 实现，保持简洁）
-inline auto authMiddleware(const QString& secret = "your-secret-key-2025")
+inline auto authMiddleware()
 {
-    return [secret](QHttpServerResponse&& resp, const QHttpServerRequest& req) -> QHttpServerResponse {
+    return [](QHttpServerResponse&& resp, const QHttpServerRequest& req) -> QHttpServerResponse {
             QString path = req.url().path();
 
             // 公开接口清空
@@ -46,13 +50,13 @@ inline auto authMiddleware(const QString& secret = "your-secret-key-2025")
 
             QString auth = req.value("Authorization");
             if (!auth.startsWith("Bearer ", Qt::CaseInsensitive)) {
-                return ErrorResponse(ErrorCode::Unauthorized);
+                return Status(ErrorCode::Unauthorized);
             }
 
             QString token = auth.mid(7);
-            QVariant result = verify(token, secret);
+            QVariant result = verify(token);
             if (!result.isValid()) {
-                return ErrorResponse(ErrorCode::Unauthorized);
+                return Status(ErrorCode::Unauthorized);
             }
 
             setCurrentUser(result);

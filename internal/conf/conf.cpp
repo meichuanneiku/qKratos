@@ -86,6 +86,19 @@ bool Config::load(const QString& inputPath)
     m_data.redis.password = redis["password"].toString();
     m_data.redis.db = redis["db"].toInt();
 
+
+    auto casbinObj = root["casbin"].toObject();
+    m_casbinPath = casbinObj["path"].toString();
+
+
+    auto authObj = root["auth"].toObject();
+    if(authObj.isEmpty()){
+       qWarning()<<"读取auth配置信息失败，请检查配置文件！";
+       return false;
+    }
+    m_auth.jwtKey = authObj["jwtKey"].toString();
+    m_auth.expires = authObj["expires"].toVariant().toLongLong();
+
     qInfo() << "Config loaded successfully";
     return true;
 }

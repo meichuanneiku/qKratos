@@ -5,17 +5,11 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
+#include "../error/error_code.h"
+using namespace  qKratos::Error;
+
 namespace qKratos::response {
 
-inline QJsonObject SuccessBody()
-{
-    static const QJsonObject obj{
-        {"code",    200},
-        {"message", "成功"},
-        {"data",    QJsonObject{}}
-    };
-    return obj;
-}
 
 inline QHttpServerResponse JsonResponse(const QJsonDocument &doc,
                                 QHttpServerResponse::StatusCode status = QHttpServerResponse::StatusCode::Ok)
@@ -53,9 +47,14 @@ inline QHttpServerResponse DeleteResponse(
     return JsonResponse(SuccessBody(), status);
 }*/
 
-//inline QHttpServerResponse Status(QHttpServerResponse::StatusCode status)
-//{
-//    return QHttpServerResponse(status, "");  // 空响应体
-//}
+inline QHttpServerResponse Status(ErrorCode code)
+{
+    return QHttpServerResponse(static_cast<QHttpServerResponse::StatusCode>(code));
+}
+
+inline QHttpServerResponse Status(QHttpServerResponse::StatusCode code = QHttpServerResponse::StatusCode::Ok)
+{
+    return QHttpServerResponse(code);
+}
 
 } // namespace qratos::response

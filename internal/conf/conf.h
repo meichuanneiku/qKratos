@@ -4,6 +4,13 @@
 
 #include <QString>
 
+enum Env
+{
+  dev = 0, // 开发环境
+  test = 1, // 测试环境
+  pro = 2 // 正式环境
+};
+
 struct ServerConfig {
     struct Server {
         QString addr;
@@ -14,6 +21,7 @@ struct ServerConfig {
     Server http;
     Server grpc;
     Server ws;
+
 };
 
 // Data配置结构
@@ -46,6 +54,11 @@ struct DataConfig {
     Redis redis;
 };
 
+struct AuthConfig{
+    QString jwtKey;
+    qint64 expires;
+};
+
 class Config
 {
 public:
@@ -58,6 +71,8 @@ public:
     bool load(const QString& inputPath = "configs/config.yaml");
     const ServerConfig& server() const { return m_server; }
     const DataConfig& data() const { return m_data; }
+    const QString& casbinPath() const { return m_casbinPath; }
+    const AuthConfig& auth() const { return m_auth; }
 
 private:
     static Config* m_instance;
@@ -65,5 +80,7 @@ private:
     ServerConfig m_server;
 
     DataConfig m_data;
+    QString m_casbinPath;
+    AuthConfig m_auth;
 };
 #endif // CONF_H

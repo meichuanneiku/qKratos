@@ -1,9 +1,7 @@
 #include "http_server.h"
 
-#include "../pkg/errorinfo/error_info.h"
 #include "../pkg/response/response.h"
 #include "../pkg/middleware/auth.h"
-#include <QDebug>
 
 using namespace qKratos::response;
 using namespace qKratos::middleware;
@@ -23,12 +21,10 @@ HttpServer::HttpServer(const int &timeout)
 
 
             QHttpServerResponse r = std::move(resp);
-            r = authMiddleware("my-secret-2025")(std::move(r), req);  // Auth
+            r = authMiddleware()(std::move(r), req);  // Auth
 //            r = loggingMiddleware(std::move(r), req);  // Logging
             r = responseMiddleware(std::move(r), req);  // 统一格式 + Recovery
             return r;
-
-
 
     });
 }
@@ -49,28 +45,30 @@ QHttpServerResponse HttpServer::responseMiddleware(QHttpServerResponse &&r, cons
 
         int status = static_cast<int>(r.statusCode());
 
-        // 关键：检测是否是我们用 Error() 返回的“标记响应”
-        if (status >= 600 && status < 700) {
-            // 已经是统一格式了，直接返回！（零开销）
-            return std::move(r);
-        }
+        bool isCustomErrorCode = status >= 1000;
+
 
         // 普通响应：统一包装
         QJsonObject unified;
-        unified["code"] = (status >= 200 && status < 300) ? 0 : status;
+        unified["code"] = status;
         unified["message"] = getMessage(status);
 
         // 尝试解析原始 body
-        QJsonParseError err;
-        QJsonDocument doc = QJsonDocument::fromJson(r.data(), &err);
-        QJsonObject origData = doc.object();
-        if (err.error == QJsonParseError::NoError && doc.isObject()) {
-            unified["data"] = origData;
-        } else {
+        if(isCustomErrorCode){
             unified["data"] = QJsonObject{};
         }
+        else{
+            QJsonParseError err;
+            QJsonDocument doc = QJsonDocument::fromJson(r.data(), &err);
+            QJsonObject origData = doc.object();
+            if (err.error == QJsonParseError::NoError && doc.isObject()) {
+                unified["data"] = origData;
+            } else {
+                unified["data"] = QJsonObject{};
+            }
+        }
 
-        return JsonResponse(unified, r.statusCode());  // 保留原始 HTTP 状态码
+        return JsonResponse(unified, isCustomErrorCode ?  QHttpServerResponse::StatusCode::Ok : r.statusCode());  // 保留原始 HTTP 状态码
 
     } catch (...) {
 //        Logger::log(Logger::Error, "Response processing failed");
@@ -80,18 +78,19 @@ QHttpServerResponse HttpServer::responseMiddleware(QHttpServerResponse &&r, cons
 
 QString HttpServer::getMessage(int status)
 {
-    // 只有原始 HTTP 错误才走这里（比如框架抛的 404、500）
-        // 所有 Error(UserNotFound) 已经自带 message，直接放行了！
-        if (status >= 200 && status < 300)
-            return QStringLiteral("成功");
+    switch (status) {
+    case 200: return QStringLiteral("成功");
+    case 400: return QStringLiteral("请求参数错误");
+    case 401: return QStringLiteral("未授权");
+    case 403: return QStringLiteral("禁止访问");
+    case 404: return QStringLiteral("资源不存在");
+    case 405: return QStringLiteral("方法不允许");
+    case 500: return QStringLiteral("服务器错误");
 
-        switch (status) {
-        case 400: return QStringLiteral("请求参数错误");
-        case 401: return QStringLiteral("未授权");
-        case 403: return QStringLiteral("禁止访问");
-        case 404: return QStringLiteral("资源不存在");
-        case 405: return QStringLiteral("方法不允许");
-        case 500: return QStringLiteral("服务器错误");
-        default:  return QStringLiteral("未知错误");
-        }
+    case UserNameEmpty:     return "用户名不能为空";
+    case UserNotFound:      return "用户不存在";
+    case Unauthorized:      return "认证数据不可为空";
+    default:  return QStringLiteral("未知错误");
+    }
 }
+

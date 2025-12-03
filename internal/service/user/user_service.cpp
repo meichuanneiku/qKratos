@@ -3,9 +3,8 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
-using namespace qKratos::Error;
-using namespace qKratos::middleware;
 using namespace qKratos::JWT;
+using namespace qKratos::response;
 
 QHttpServerResponse UserServiceImpl::CreateUser(const QHttpServerRequest& req)
 {
@@ -22,51 +21,51 @@ QHttpServerResponse UserServiceImpl::CreateUser(const QHttpServerRequest& req)
     int id = m_biz.CreateUser(name);
 
     QJsonObject body{ {"id", id}, {"name", name} };
-    return SuccessResponse(body);
+    return JsonResponse(body);
 }
 
 QHttpServerResponse UserServiceImpl::GetUser(const int &systemId, const QRegularExpressionMatch& match)
 {
     bool ok;
     int id = match.captured(1).toInt(&ok);
-    if (!ok) return ErrorResponse(ErrorCode::UserIdInvalid);
+    if (!ok) return Status(ErrorCode::UserIdInvalid);
 
     auto user = m_biz.GetUser(systemId, QString::number(id));
-    if (user.isEmpty()) return ErrorResponse(ErrorCode::UserNotFound);
+    if (user.isEmpty()) return Status(ErrorCode::UserNotFound);
 
-    return SuccessResponse(user);
+    return JsonResponse(user);
 }
 
 QHttpServerResponse UserServiceImpl::DeleteUser(const QRegularExpressionMatch& match)
 {
     bool ok;
     int id = match.captured(1).toInt(&ok);
-    if (!ok) return ErrorResponse(ErrorCode::UserIdInvalid);
+    if (!ok) return Status(ErrorCode::UserIdInvalid);
 
     m_biz.DeleteUser(id);
-    return SuccessResponse();
+    return Status();
 }
 
 QHttpServerResponse UserServiceImpl::GetUserByIdDirect(const int &systemId, const QString &id)
 {
     auto user = m_biz.FindById(systemId, id);
     if (user.isEmpty())
-        return ErrorResponse(ErrorCode::UserNotFound);
+        return Status(ErrorCode::UserNotFound);
 
-    return QHttpServerResponse(user);
+    return JsonResponse(user);
 }
 
 QHttpServerResponse UserServiceImpl::DeleteUser(const int &id)
 {
     m_biz.DeleteUser(id);
-    return SuccessResponse();
+    return Status();
 }
 
 QHttpServerResponse UserServiceImpl::GetUserByIdDirect(const QHttpServerRequest &request)
 {
     QUrlQuery query  = request.query();
    if(!query.hasQueryItem("id")){
-        return ErrorResponse(ErrorCode::UserIdEmpty);
+        return Status(ErrorCode::UserIdEmpty);
    }
    QString id = query.queryItemValue("id");
 
@@ -74,7 +73,7 @@ QHttpServerResponse UserServiceImpl::GetUserByIdDirect(const QHttpServerRequest 
    return GetUserByIdDirect(systemId.toInt(), id);
 }
 
-QHttpServerResponse UserServiceImpl::GetProfile(const QHttpServerRequest &request)
+/*QHttpServerResponse UserServiceImpl::GetProfile(const QHttpServerRequest &request)
 {
     QVariant userVar = currentUser();
         if (!userVar.isValid()) {
@@ -96,6 +95,7 @@ QHttpServerResponse UserServiceImpl::GetProfile(const QHttpServerRequest &reques
 
         return SuccessResponse(data);
 }
+*/
 
 QHttpServerResponse UserServiceImpl::Login(const QHttpServerRequest &request)
 {
@@ -103,7 +103,7 @@ QHttpServerResponse UserServiceImpl::Login(const QHttpServerRequest &request)
     QJsonParseError err;
     QJsonDocument doc = QJsonDocument::fromJson(request.body(), &err);
     if (err.error != QJsonParseError::NoError || !doc.isObject()) {
-        return ErrorResponse(ErrorCode::InvalidParams);  // 自定义错误码：参数错误
+        return Status(ErrorCode::InvalidParams);  // 自定义错误码：参数错误
     }
 
     QJsonObject obj = doc.object();
@@ -112,7 +112,7 @@ QHttpServerResponse UserServiceImpl::Login(const QHttpServerRequest &request)
 
     // 2. 简单的账号密码校验（实际项目请查数据库 + 加密比对）
     if (username != "admin" || password != "123456") {
-        return ErrorResponse(ErrorCode::Unauthorized);   // 账号或密码错误
+        return Status(ErrorCode::Unauthorized);   // 账号或密码错误
     }
 
     // 3. 签发 JWT
@@ -120,9 +120,8 @@ QHttpServerResponse UserServiceImpl::Login(const QHttpServerRequest &request)
     claims.sub = "1001";                    // 用户ID
     claims.name = "管理员";
     claims.roles = QStringList() <<"admin" << "user";
-    claims.exp = QDateTime::currentDateTimeUtc().addDays(7).toSecsSinceEpoch();
 
-    QString token = sign(claims, "my-secret-2025");
+    QString token = sign(claims);
 
     // 4. 返回 token + 用户信息
     QJsonObject data{
@@ -132,5 +131,5 @@ QHttpServerResponse UserServiceImpl::Login(const QHttpServerRequest &request)
         {"roles",   QJsonArray::fromStringList(claims.roles)}
     };
 
-    return SuccessResponse(data);  // 自动包装成统一格式
+    return JsonResponse(data);  // 自动包装成统一格式
 }

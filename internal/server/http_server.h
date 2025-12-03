@@ -1,10 +1,10 @@
 #ifndef HTTPSERVER_H
 #define HTTPSERVER_H
 
-//#include <QtHttpServer/qhttpserver.h>
 #include <QHttpServer>
 #include <QJsonParseError>
 #include <QJsonObject>
+#include <QDebug>
 
 class HttpServer
 {
