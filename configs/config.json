@@ -37,6 +37,6 @@
 		"expires": 259200
 	},
 	"casbin": {
-		"path": "configs/auth/casbin_model.conf"
+                "path": "configs/authz/casbin_model.conf"
 	}
 }

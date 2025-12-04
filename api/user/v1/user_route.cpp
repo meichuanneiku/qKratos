@@ -24,6 +24,7 @@ void RegisterUserServiceRoutes(QHttpServer& server, UserServiceImpl* impl)
     // 登录接口：POST /api/v1/login
     server.route("/api/v1/login", QHttpServerRequest::Method::Post,
                  [impl](const QHttpServerRequest& request) {
-        return impl->Login(request);
+         QByteArray systemId = request.headers().value("systemid").toByteArray();
+        return impl->Login(systemId.toInt(), request);
     });
 }

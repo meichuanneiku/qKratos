@@ -15,13 +15,15 @@ public:
         static UserRepo repo;   // C++11 起支持的线程安全单例
         return repo;
     }
-//    static UserRepo& instance() { static UserRepo r; return r; }
+    //    static UserRepo& instance() { static UserRepo r; return r; }
 
     void Save(const QJsonObject& u) { storage[u["id"].toInt()] = u; }
     QSqlQuery FindById(const int& systemId, QString id) const;// { return storage.value(id); }
-    int Remove(int id) { return storage.remove(id); }
+    bool Remove(int id);
 
-     QSqlQuery FindByUsername(const int& systemId, const QString& username) const;// { return storage.value(id); }
+    QSqlQuery FindByName(const int& systemId, const QString& name) const;// { return storage.value(id); }
+
+    QSqlQuery FindByNameAndPassword(const int& systemId, const QString& name, const QString &password) const;// { return storage.value(id); }
 
 private:
     // 私有构造函数，防止外部实例化

@@ -8,7 +8,7 @@
 #include "../error/error_code.h"
 using namespace  qKratos::Error;
 
-namespace qKratos::response {
+namespace qKratos::Response {
 
 
 inline QHttpServerResponse JsonResponse(const QJsonDocument &doc,

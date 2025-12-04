@@ -66,26 +66,17 @@ FULL_CXX_RAW = $$system("where g++")
 FULL_CXX_PATH = $$member(FULL_CXX_RAW, 0)
 FULL_CXX_PATH = $$replace(FULL_CXX_PATH, \\\\, /)
 
-# 3. 打印调试信息，看看现在对不对
-message("------------------------------------------------")
-message("【调试】 原始 g++ 命令: $$QMAKE_CXX")
-message("【调试】 捕获绝对路径: $$FULL_CXX_PATH")
-
 # 4. 开始推导目录
 # 从 .../bin/g++.exe 去掉文件名 -> .../bin
 COMPILER_BIN = $$dirname(FULL_CXX_PATH)
 
 # 从 .../bin 去掉 bin -> .../ (工具链根目录)
 TOOLCHAIN_ROOT = $$dirname(COMPILER_BIN)
-message("【调试】 工具链根目录: $$TOOLCHAIN_ROOT")
 
 # 5. 拼接 OpenSSL 路径
 # 假设结构是 C:/Qt/Tools/mingw730_64/opt/lib
 OPENSSL_LIB_PATH = $$TOOLCHAIN_ROOT/opt/lib
 OPENSSL_INC_PATH = $$TOOLCHAIN_ROOT/opt/include
-
-message("【调试】 最终 Lib 路径: $$OPENSSL_LIB_PATH")
-message("------------------------------------------------")
 
 # 4. 应用配置
 INCLUDEPATH += $$OPENSSL_INC_PATH

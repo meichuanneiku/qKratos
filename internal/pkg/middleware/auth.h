@@ -6,19 +6,14 @@
 #include <QThreadStorage>
 
 #include "../jwt/jwt.h"
-
-//#include "../error/error_code.h"
 #include "../casbin/casbin_dm_adapter.h"
-
 #include "../response/response.h"
 
-using namespace qKratos::response;
+using namespace qKratos::Response;
 using namespace qKratos::JWT;
-//using namespace qKratos::Error;
-using namespace qKratos::rbac;
+using namespace qKratos::Casbin;
 
-namespace qKratos::middleware {
-
+namespace qKratos::Middleware {
 
 inline QThreadStorage<QVariant>& currentUserStorage()
 {
@@ -67,24 +62,24 @@ inline auto authMiddleware()
 
             QString auth = req.value("Authorization");
             if (!auth.startsWith("Bearer ", Qt::CaseInsensitive)) {
-                return Status(ErrorCode::Unauthorized);
+                return Status(QHttpServerResponder::StatusCode::Unauthorized);
             }
 
             QString token = auth.mid(7);
-            QVariant result = verify(token);
+            QVariant result = JwtHelper::verify(token);
             if (!result.isValid()) {
-                return Status(ErrorCode::Unauthorized);
+                return Status(Unauthorized);
             }
 
             setCurrentUser(result);
 
             // Casbin 权限判断
             Claims claims = result.value<Claims>();
-            QString userId = claims.sub;
+            QString userName = claims.name;
             QString method = methodToString(req.method());
 
-            if (!enforce(userId, path, method)) {
-                return Status(ErrorCode::Forbidden);
+            if (!enforce(userName, path, method)) {
+                return Status(Forbidden);
             }
 
             return std::move(resp);

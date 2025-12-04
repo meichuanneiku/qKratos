@@ -31,7 +31,44 @@ QSqlQuery UserRepo::FindById(const int &systemId, QString id) const
     return query;
 }
 
-QSqlQuery UserRepo::FindByUsername(const int &systemId, const QString &username) const
+bool UserRepo::Remove(int id)
+{
+    return storage.remove(id);
+}
+
+QSqlQuery UserRepo::FindByName(const int &systemId, const QString &name) const
 {
 
+}
+
+QSqlQuery UserRepo::FindByNameAndPassword(const int &systemId, const QString &name, const QString &password) const
+{
+    QString sql = QString("select a.YHID, c.JSMC, c.QX "
+                          "from %1 a left join %2 c on a.JSID=c.JSID")
+            .arg(systemId == 1 ? UserTableName : UserTableName2).arg(systemId == 1 ? RoleTableName : RoleTableName2);
+
+    sql += " where YHMC = ? AND PASSWORD = ?";
+
+
+    QJsonObject result;
+    QSqlQuery query( DataBaseManager::instance()->data().db);
+    query.prepare(sql);
+    query.addBindValue(name);
+    query.addBindValue(password);
+
+    if (!query.exec() || !query.next()) {
+        qWarning() << QString("[%1]Select query failed:%2").arg(sql, query.lastError().text());
+
+        qDebug()<< "query.lastError().isValid()= " <<query.lastError().isValid();
+        qDebug()<< "query.lastError().text()= " <<query.lastError().text();
+        qDebug()<< "query.isValid()= " <<query.isValid();
+        qDebug()<< "query.isActive()= " <<query.isActive();
+        qDebug()<< "query.isSelect()= " <<query.isSelect();
+        qDebug()<< "query.size()= " <<query.size();
+
+        query.lastError() = QSqlError("报错了");
+        return query;
+    }
+
+    return query;
 }

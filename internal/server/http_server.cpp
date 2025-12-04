@@ -1,10 +1,8 @@
 #include "http_server.h"
-
-#include "../pkg/response/response.h"
 #include "../pkg/middleware/auth.h"
 
-using namespace qKratos::response;
-using namespace qKratos::middleware;
+
+using namespace qKratos::Middleware;
 
 HttpServer::HttpServer(const int &timeout)
 {
@@ -46,7 +44,6 @@ QHttpServerResponse HttpServer::responseMiddleware(QHttpServerResponse &&r, cons
         int status = static_cast<int>(r.statusCode());
 
         bool isCustomErrorCode = status >= 1000;
-
 
         // 普通响应：统一包装
         QJsonObject unified;
