@@ -52,27 +52,45 @@ HEADERS += \
 DISTFILES += \
     configs/config.json
 
-#INCLUDEPATH += $$PWD/third_party/casbin-cpp/include
-#SOURCES += \
-#    third_party/casbin-cpp/casbin/enforcer.cpp \
-#    third_party/casbin-cpp/casbin/enforcer_cached.cpp \
-#    third_party/casbin-cpp/casbin/enforcer_synced.cpp \
-#    third_party/casbin-cpp/casbin/model/model.cpp \
-#    third_party/casbin-cpp/casbin/model/assertion.cpp \
-#    third_party/casbin-cpp/casbin/model/evaluator.cpp \
-#    third_party/casbin-cpp/casbin/model/function.cpp \
-##    third_party/casbin-cpp/casbin/util.cpp \
-##    third_party/casbin-cpp/casbin/built_in_functions.cpp \
-##    third_party/casbin-cpp/casbin/effect/effect.cpp \
-#    third_party/casbin-cpp/casbin/effect/default_effector.cpp \
-#    third_party/casbin-cpp/casbin/rbac/default_role_manager.cpp \
-##    third_party/casbin-cpp/casbin/rbac/rbac.cpp \
-#    third_party/casbin-cpp/casbin/persist/file_adapter/file_adapter.cpp \
-##    third_party/casbin-cpp/casbin/persist/filtered_adapter.cpp \
-##    third_party/casbin-cpp/casbin/persist/persist.cpp \
-#    third_party/casbin-cpp/casbin/logger.cpp \
-#    third_party/casbin-cpp/casbin/config/config.cpp
+ #jwt-cpp
+INCLUDEPATH += $$PWD/third_party/jwt-cpp/include
 
+win32 {
+# 1. 强制向系统询问 g++ 的绝对路径
+# 使用 Windows 的 "where" 命令查找 g++
+FULL_CXX_RAW = $$system("where g++")
+
+# 2. 处理路径格式 (非常重要！)
+# Windows 返回的路径可能是多行(如果有多个g++)，且使用反斜杠 \
+# 我们取第一行，并将 \ 替换为 / 以便 QMake 处理
+FULL_CXX_PATH = $$member(FULL_CXX_RAW, 0)
+FULL_CXX_PATH = $$replace(FULL_CXX_PATH, \\\\, /)
+
+# 3. 打印调试信息，看看现在对不对
+message("------------------------------------------------")
+message("【调试】 原始 g++ 命令: $$QMAKE_CXX")
+message("【调试】 捕获绝对路径: $$FULL_CXX_PATH")
+
+# 4. 开始推导目录
+# 从 .../bin/g++.exe 去掉文件名 -> .../bin
+COMPILER_BIN = $$dirname(FULL_CXX_PATH)
+
+# 从 .../bin 去掉 bin -> .../ (工具链根目录)
+TOOLCHAIN_ROOT = $$dirname(COMPILER_BIN)
+message("【调试】 工具链根目录: $$TOOLCHAIN_ROOT")
+
+# 5. 拼接 OpenSSL 路径
+# 假设结构是 C:/Qt/Tools/mingw730_64/opt/lib
+OPENSSL_LIB_PATH = $$TOOLCHAIN_ROOT/opt/lib
+OPENSSL_INC_PATH = $$TOOLCHAIN_ROOT/opt/include
+
+message("【调试】 最终 Lib 路径: $$OPENSSL_LIB_PATH")
+message("------------------------------------------------")
+
+# 4. 应用配置
+INCLUDEPATH += $$OPENSSL_INC_PATH
+LIBS += -L$$OPENSSL_LIB_PATH -lssl -lcrypto -lws2_32 -lcrypt32
+}
 
 
 INCLUDEPATH += $$PWD/third_party/casbin-cpp/include
