@@ -20,16 +20,24 @@ struct Claims {
     qint64 exp = QDateTime::currentDateTimeUtc().addSecs(Config::instance()->auth().expires).toSecsSinceEpoch(); // expires为3天有效期
     qint64 iat = QDateTime::currentDateTimeUtc().toSecsSinceEpoch();
 
+    // 新增字段：数据权限所需
+    qint64 roleId = 0;
+    qint64 departmentId = 0;
+    int dataScope = 5;     // 默认仅本人 (DataScope::Self)
+
     QJsonObject toJson() const {
         {
         QJsonObject obj;
         obj["sub"] = sub;
         obj["name"] = name;
         obj["roles"] = QJsonArray::fromStringList(roles);
+        obj["role_id"] = roleId;
+        obj["department_id"] = departmentId;
+        obj["data_scope"] = dataScope;
         obj["exp"] = exp;
         obj["iat"] = iat;
         return obj;
-    }
+        }
     }
 };
 

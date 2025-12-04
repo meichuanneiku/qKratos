@@ -66,9 +66,32 @@ QSqlQuery UserRepo::FindByNameAndPassword(const int &systemId, const QString &na
         qDebug()<< "query.isSelect()= " <<query.isSelect();
         qDebug()<< "query.size()= " <<query.size();
 
-        query.lastError() = QSqlError("报错了");
         return query;
     }
 
     return query;
+}
+
+QSqlQuery UserRepo::ListUsers(const int &systemId, QString page) const
+{
+      QSqlQuery query( DataBaseManager::instance()->data().db);
+
+      // 基础查询 + 数据权限
+          query = applyDataScope(query, systemId == 1 ? UserTableName : UserTableName2);
+
+          // 继续追加业务条件（比如搜索、状态、分页等）
+//          QString keyword = req.query().queryItemValue("keyword");
+//          if (!keyword.isEmpty()) {
+//              query.exec(QString("AND (username LIKE '%%1%' OR name LIKE '%%1%')").arg(keyword));
+//          }
+
+          query.exec("AND status = ?");
+          query.addBindValue(1); // 状态为启用
+
+          query.exec("ORDER BY create_time DESC LIMIT 20 OFFSET 0");
+
+          if (!query.exec() || !query.next()) {
+              return query;
+          }
+          return query;
 }

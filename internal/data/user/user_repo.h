@@ -5,7 +5,9 @@
 #include <QJsonObject>
 #include <QDebug>
 #include "../data.h"
+#include "../../pkg/permission/data_scope.h"
 
+using namespace qKratos::Permission;
 //#include <QSqlQuery>
 class UserRepo
 {
@@ -24,6 +26,9 @@ public:
     QSqlQuery FindByName(const int& systemId, const QString& name) const;// { return storage.value(id); }
 
     QSqlQuery FindByNameAndPassword(const int& systemId, const QString& name, const QString &password) const;// { return storage.value(id); }
+
+
+    QSqlQuery ListUsers(const int& systemId, QString page) const;
 
 private:
     // 私有构造函数，防止外部实例化

@@ -45,6 +45,7 @@ HEADERS += \
     internal/pkg/error/error_code.h \
     internal/pkg/jwt/jwt.h \
     internal/pkg/middleware/auth.h \
+    internal/pkg/permission/data_scope.h \
     internal/pkg/response/response.h \
     internal/server/http_server.h \
     internal/service/user/user_service.h
@@ -77,10 +78,12 @@ TOOLCHAIN_ROOT = $$dirname(COMPILER_BIN)
 # 假设结构是 C:/Qt/Tools/mingw730_64/opt/lib
 OPENSSL_LIB_PATH = $$TOOLCHAIN_ROOT/opt/lib
 OPENSSL_INC_PATH = $$TOOLCHAIN_ROOT/opt/include
+OPENSSL_BIN_PATH = $$TOOLCHAIN_ROOT/opt/bin
 
 # 4. 应用配置
 INCLUDEPATH += $$OPENSSL_INC_PATH
 LIBS += -L$$OPENSSL_LIB_PATH -lssl -lcrypto -lws2_32 -lcrypt32
+LIBS += -L$$OPENSSL_BIN_PATH -leay32
 }
 
 
