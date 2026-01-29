@@ -10,6 +10,11 @@
 #include "../../internal/data/data.h"
 #include "../../internal/pkg/jwt/jwt.h"
 
+
+#include "../../internal/pkg/cron/cron_scheduler.h"
+#include "../../internal/pkg/cron/jobpanel.h"
+#include "appcontext.h"
+
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
@@ -43,18 +48,41 @@ int main(int argc, char *argv[])
         return -1;
     }
 
+
+    // 创建唯一调度器实例，生命周期由 QApplication 管理
+    CronScheduler scheduler(&app);
+    // 设置全局上下文（关键！）
+    AppContext::instance().setScheduler(&scheduler);
+
     if (!DataBaseManager::instance()->connect()) {
         return -1;
     }
 
     ServerConfig serverConfig = Config::instance()->server();
+
+#if HTTPSERVER_INSTANCE
+    HttpServer::instance().init(serverConfig.http.timeout);
+    HttpServer::instance().registerService(new UserServiceImpl, RegisterUserServiceRoutes);
+    if(!HttpServer::instance().listen(serverConfig.http.addr, serverConfig.http.port)){
+        return -1;
+    }
+#else
     HttpServer server(serverConfig.http.timeout);
 
     server.registerService(new UserServiceImpl, RegisterUserServiceRoutes);
     // 以后加角色、部门等模块只加一行
     // server.registerService(new RoleServiceImpl, RegisterRoleServiceRoutes);
 
-    server.listen(serverConfig.http.addr, serverConfig.http.port);
+    if(!server.listen(serverConfig.http.addr, serverConfig.http.port)){
+        return -1;
+    }
+#endif
+
+
+
+    //开启定时任务
+
+    JobPanel::instance().deviceParam("*/10 * * * * *");
 
     return app.exec();
 }

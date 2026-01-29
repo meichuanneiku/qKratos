@@ -7,6 +7,8 @@
 #include "../data.h"
 #include "../../pkg/permission/data_scope.h"
 
+#include "../../pkg/global/global.h"
+
 using namespace qKratos::Permission;
 //#include <QSqlQuery>
 class UserRepo
@@ -23,12 +25,15 @@ public:
     QSqlQuery FindById(const int& systemId, QString id) const;// { return storage.value(id); }
     bool Remove(int id);
 
-    QSqlQuery FindByName(const int& systemId, const QString& name) const;// { return storage.value(id); }
+    QueryResult FindByName(const int& systemId, const QString& name) const;// { return storage.value(id); }
 
-    QSqlQuery FindByNameAndPassword(const int& systemId, const QString& name, const QString &password) const;// { return storage.value(id); }
+    QueryResult ListUsers(const int& systemId, const QString& fxtid,const QString& jsid,
+                          const QString& zxzt, const QString& yhmc,
+                          const QString& dlcsCondition, const int& dlcs,
+                          const int& page, const int& pageSize) const;
 
 
-    QSqlQuery ListUsers(const int& systemId, QString page) const;
+   QJsonObject deviceParamPush(const QJsonObject &doc);
 
 private:
     // 私有构造函数，防止外部实例化

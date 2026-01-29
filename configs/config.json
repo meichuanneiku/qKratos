@@ -3,7 +3,7 @@
 		"http": {
 			"addr": "0.0.0.0",
 			"port": 8080,
-			"timeout": 1000
+                        "timeout": 2000
 		},
 		"ws": {
 			"addr": "0.0.0.0",
@@ -12,14 +12,21 @@
 	},
 	"data": {
 		"mysql": {
-			"host": "pooler.supabase.com",
+                        "host": "mysql.sqlpub.com",
 			"port": 3306,
-			"user": "mysql",
-			"password": "1",
-			"dbname": "qt"
+                        "user": "xinyangme",
+                        "password": "y6TuhhtjlidzmwKZ",
+                        "dbname": "xinyang_mysql"
+		},
+		"postgresql": {
+                        "host": "ep-jolly-term-a1grf3se-pooler.ap-southeast-1.aws.neon.tech",
+			"port": 5432,
+                        "user": "neondb_owner",
+                        "password": "npg_8oLcNP5mujZg",
+                        "dbname": "postgres"
 		},
 		"dmsql": {
-			"host": "192.168.2.111",
+                        "host": "192.168.1.111",
 			"port": 5236,
 			"user": "SYSDBA",
 			"password": "Dameng123",
@@ -37,6 +44,6 @@
 		"expires": 259200
 	},
 	"casbin": {
-                "path": "configs/authz/casbin_model.conf"
+		"path": "configs/authz/casbin_model.conf"
 	}
 }

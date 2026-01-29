@@ -73,6 +73,14 @@ bool Config::load(const QString& inputPath)
     m_data.mysql.password = mysql["password"].toString();
     m_data.mysql.dbname = mysql["dbname"].toString();
 
+
+    auto pgsql = dataObj["postgresql"].toObject();
+    m_data.pgsql.host = pgsql["host"].toString();
+    m_data.pgsql.port = pgsql["port"].toInt();
+    m_data.pgsql.user = pgsql["user"].toString();
+    m_data.pgsql.password = pgsql["password"].toString();
+    m_data.pgsql.dbname = pgsql["dbname"].toString();
+
     auto dmsql = dataObj["dmsql"].toObject();
     m_data.dmsql.host = dmsql["host"].toString();
     m_data.dmsql.port = dmsql["port"].toInt();

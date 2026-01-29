@@ -1,5 +1,4 @@
 #include "user_route.h"
-
 #include "../../../internal/service/user/user_service.h"
 
 void RegisterUserServiceRoutes(QHttpServer& server, UserServiceImpl* impl)
@@ -24,7 +23,14 @@ void RegisterUserServiceRoutes(QHttpServer& server, UserServiceImpl* impl)
     // 登录接口：POST /api/v1/login
     server.route("/api/v1/login", QHttpServerRequest::Method::Post,
                  [impl](const QHttpServerRequest& request) {
-         QByteArray systemId = request.headers().value("systemid").toByteArray();
+         QByteArray systemId = request.headers().value("systemId").toByteArray();
         return impl->Login(systemId.toInt(), request);
+    });
+
+    //获取用户列表接口：POST /api/v1/user/list
+    server.route("/api/v1/user/list", QHttpServerRequest::Method::Post,
+                 [impl](const QHttpServerRequest& request) {
+         QByteArray systemId = request.headers().value("systemId").toByteArray();
+        return impl->UserList(systemId.toInt(), request);
     });
 }

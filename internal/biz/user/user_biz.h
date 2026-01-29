@@ -3,11 +3,15 @@
 
 #include <QObject>
 #include <QJsonObject>
+#include <QJsonArray>
 #include <QSqlQuery>
+#include <QSqlRecord>
 #include <QCryptographicHash>
+#include <QtMath>
+
 
 #include "../../data/user/user_repo.h"
-
+#include "../../pkg/global/global.h"
 
 
 class UserBiz: public QObject
@@ -22,7 +26,13 @@ public:
 
     bool DeleteUser(int id);
 
-    QJsonObject UserLogin(const int& systemId, const QString& name,const QString& password);
+    JsonObjectResult UserLogin(const int& systemId, const QString& name,const QString& password);
+
+    JsonObjectResult UserList(const int& systemId, const QString& fxtid,const QString& jsid,
+                              const QString& zxzt, const QString& yhmc,
+                              const QString& dlcsCondition, const int& dlcs,
+                              const int& page, const int& pageSize);
+
 
 signals:
     void userCreated(const QJsonObject& user);

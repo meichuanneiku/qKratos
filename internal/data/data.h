@@ -8,6 +8,8 @@
 
 struct Data {
     QSqlDatabase db;
+    QSqlDatabase pgdb;
+    QSqlDatabase mysqldb;
 };
 
 class DataBaseManager

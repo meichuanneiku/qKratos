@@ -12,7 +12,7 @@ CONFIG -= app_bundle
 # depend on your compiler). Please consult the documentation of the
 # deprecated API in order to know how to port your code away from it.
 DEFINES += QT_DEPRECATED_WARNINGS
-
+DEFINES -= HTTPSERVER_INSTANCE
 # You can also make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
@@ -26,8 +26,11 @@ SOURCES += \
         internal/data/data.cpp \
         internal/data/user/user_repo.cpp \
         internal/pkg/casbin/casbin_dm_adapter.cpp \
+        internal/pkg/cron/cron_scheduler.cpp \
+        internal/pkg/cron/jobpanel.cpp \
         internal/pkg/jwt/jwt.cpp \
         internal/server/http_server.cpp \
+        internal/service/run_analyze/runanalyzeserviceimpl.cpp \
         internal/service/user/user_service.cpp
 
 # Default rules for deployment.
@@ -37,17 +40,22 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     api/user/v1/user_route.h \
+    cmd/server/appcontext.h \
     internal/biz/user/user_biz.h \
     internal/conf/conf.h \
     internal/data/data.h \
     internal/data/user/user_repo.h \
     internal/pkg/casbin/casbin_dm_adapter.h \
+    internal/pkg/cron/cron_scheduler.h \
+    internal/pkg/cron/jobpanel.h \
     internal/pkg/error/error_code.h \
+    internal/pkg/global/global.h \
     internal/pkg/jwt/jwt.h \
     internal/pkg/middleware/auth.h \
     internal/pkg/permission/data_scope.h \
     internal/pkg/response/response.h \
     internal/server/http_server.h \
+    internal/service/run_analyze/runanalyzeserviceimpl.h \
     internal/service/user/user_service.h
 
 DISTFILES += \
@@ -89,3 +97,6 @@ LIBS += -L$$OPENSSL_BIN_PATH -leay32
 
 INCLUDEPATH += $$PWD/third_party/casbin-cpp/include
 LIBS += -L$$PWD/third_party/casbin-cpp/bin -lcasbin
+
+#cron-cpp定时任务
+INCLUDEPATH += $$PWD/third_party/cron-cpp/include

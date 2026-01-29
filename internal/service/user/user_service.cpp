@@ -110,33 +110,61 @@ QHttpServerResponse UserServiceImpl::Login(const int &systemId, const QHttpServe
     if(username.isEmpty() || password.isEmpty()){
          return Status(Unauthorized);   // 账号或密码错误
     }
-/*
-    // 2. 简单的账号密码校验（实际项目请查数据库 + 加密比对）
-    if (username != "admin" || password != "123456") {
-        return Status(Unauthorized);   // 账号或密码错误
+
+    auto login = m_biz.UserLogin(systemId, username, password);
+
+    if (!login.isSuccess()) return Status(login.errorCode);
+
+    return JsonResponse(login.data);
+}
+
+QHttpServerResponse UserServiceImpl::UserList(const int &systemId, const QHttpServerRequest &request)
+{
+    // 1. 解析请求体
+    QJsonParseError err;
+    QJsonDocument doc = QJsonDocument::fromJson(request.body(), &err);
+    if (err.error != QJsonParseError::NoError || !doc.isObject()) {
+        return Status(InvalidParams);  // 自定义错误码：参数错误
     }
 
-    // 3. 签发 JWT
-    Claims claims;
-    claims.sub = "1001";                    // 用户ID
-    claims.name = "管理员";
-    claims.roles = QStringList() <<"admin" << "user";
+    QJsonObject obj = doc.object();
 
-//    QString token = sign(claims);
-    QString token = JwtHelper::sign(claims);
+    QString fxtid         = obj["FXTID"].toString();
+    QString jsid          = obj["JSID"].toString();
+    QString zxzt          = obj["ZXZT"].toString();
+    QString yhmc          = obj["YHMC"].toString();
+    QString dlcsCondition = obj["DLCSCondition"].toString();
+    int dlcs              = obj["DLCS"].toInt(-1);
+    int page              = obj["page"].toInt();
+    int pageSize          = obj["pageSize"].toInt();
 
-    // 4. 返回 token + 用户信息
-    QJsonObject data{
-        {"token", token},
-        {"user_id", claims.sub},
-        {"name",    claims.name},
-        {"roles",   QJsonArray::fromStringList(claims.roles)}
-    };
+    //判断必填字段
+   /* if(dlcs == -1){
+        return Status(InvalidParams);  // 自定义错误码：参数错误
+    }*/
 
-    return JsonResponse(data);  // 自动包装成统一格式*/
-    auto login = m_biz.UserLogin(systemId, username, password);
-    if (login.isEmpty()) return Status(UserNotFound);
 
-    return JsonResponse(login);
+    auto userList = m_biz.UserList(systemId, fxtid, jsid, zxzt, yhmc, dlcsCondition, dlcs, page, pageSize);
+
+    if (!userList.isSuccess()) return Status(userList.errorCode);
+
+    return JsonResponse(userList.data);
+
+}
+
+QJsonObject UserServiceImpl::pollAndPush(const QJsonObject &doc)
+{
+    int SJJG = doc["params"]["SJJG"].toInt();
+    //    auto xhdIdArr = doc["params"]["XHDIDLB"].toArray();
+    QStringList xhdIdList;
+    for (const auto &val : doc["params"]["XHDIDLB"].toArray()) {
+        xhdIdList << val.toString();
+    }
+//    QString currentTime =  QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
+
+
+
+//    auto userList = m_biz.pollAndPush();
+    return {};
 
 }

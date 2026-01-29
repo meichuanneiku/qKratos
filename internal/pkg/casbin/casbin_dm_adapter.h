@@ -48,7 +48,7 @@ public:
                 model->AddPolicy(ptype, ptype, rule);
             }
         }
-        qInfo() << "Casbin policy loaded from DM database";
+//        qInfo() << "Casbin policy loaded from DM database";
     }
 
     void SavePolicy(const std::shared_ptr<casbin::Model>& model) override {

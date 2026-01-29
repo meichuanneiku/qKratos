@@ -48,6 +48,14 @@ inline QString methodToString(QHttpServerRequest::Method m) {
     }
 }
 
+//白名单
+inline bool authWhitelist(QString path){
+    if( path == "/api/v1/login" || path.startsWith("/api/v1/public/") || path.startsWith("/api/v1/timeout") ) {
+        return true;
+    }
+    return false;
+}
+
 // JWT 中间件（inline 实现，保持简洁）
 inline auto authMiddleware()
 {
@@ -55,7 +63,8 @@ inline auto authMiddleware()
             QString path = req.url().path();
 
             // 公开接口清空
-            if (path == "/api/v1/login" || path.startsWith("/api/v1/public/")) {
+//            if (path == "/api/v1/login" || path.startsWith("/api/v1/public/")) {
+            if (authWhitelist(path)) {
                 setCurrentUser(QVariant());
                 return std::move(resp);
             }

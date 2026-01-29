@@ -21,6 +21,10 @@ public:
     QHttpServerResponse GetProfile(const QHttpServerRequest &request);
 
     QHttpServerResponse Login(const int &systemId, const QHttpServerRequest &request);
+    QHttpServerResponse UserList(const int &systemId, const QHttpServerRequest &request);
+
+    //测试web推送
+    QJsonObject pollAndPush(const QJsonObject &doc);
 
 private:
     UserBiz m_biz;

@@ -50,6 +50,7 @@ struct DataConfig {
     };
 
     DateBase mysql;
+    DateBase pgsql;
     DmSQL dmsql;
     Redis redis;
 };
