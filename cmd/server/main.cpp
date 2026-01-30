@@ -9,6 +9,7 @@
 #include "../../internal/conf/conf.h"
 #include "../../internal/data/data.h"
 #include "../../internal/pkg/jwt/jwt.h"
+#include "../../internal/pkg/log/logger.h"
 
 
 #include "../../internal/pkg/cron/cron_scheduler.h"
@@ -27,7 +28,7 @@ int main(int argc, char *argv[])
 
     // ==================== Kratos 正宗命令行解析 ====================
     QCommandLineParser parser;
-    parser.setApplicationDescription("Qkratos - C++ version of Go Kratos framework");
+    parser.setApplicationDescription("QKratos - C++ version of Go Kratos framework");
     parser.addHelpOption();
     parser.addVersionOption();
 
@@ -48,6 +49,11 @@ int main(int argc, char *argv[])
         return -1;
     }
 
+    // 初始化日志系统
+#ifdef QT_DEBUG
+#else
+    QDebugLogger::instance()->init();
+#endif
 
     // 创建唯一调度器实例，生命周期由 QApplication 管理
     CronScheduler scheduler(&app);
@@ -78,11 +84,7 @@ int main(int argc, char *argv[])
     }
 #endif
 
-
-
     //开启定时任务
-
     JobPanel::instance().deviceParam("*/10 * * * * *");
-
     return app.exec();
 }

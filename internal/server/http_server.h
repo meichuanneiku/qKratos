@@ -49,6 +49,7 @@ private:
     HttpServer() = default;
 #endif
     static QHttpServerResponse responseMiddleware(QHttpServerResponse &&r, const QHttpServerRequest &req);
+    static QHttpServerResponse loggingMiddleware(QHttpServerResponse &&r, const QHttpServerRequest &req);
     static QString getMessage(int status);
 
     QHttpServer m_server;

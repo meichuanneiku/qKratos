@@ -6,7 +6,7 @@
 #include <QMetaObject>
 
 #include "../../../internal/server/http_server.h"
-#include "../../../internal/data/user/user_repo.h"
+#include "../../../internal/biz/user/user_biz.h"
 
 void JobPanel::deviceParam(QString cronExpr)
 {
@@ -26,7 +26,7 @@ void JobPanel::deviceParam(QString cronExpr)
 #else
             auto webSocketMap = AppContext::instance().webSocketListB();
 #endif
-//            qDebug()<< "webSocketMap count = " << webSocketMap.count();
+            qDebug()<< "webSocketMap count = " << webSocketMap.count();
 
             QMapIterator<QWebSocket *, QJsonObject> i(webSocketMap);
             while (i.hasNext()) {
@@ -35,17 +35,26 @@ void JobPanel::deviceParam(QString cronExpr)
                 QJsonObject wsJson = i.value();
 
                 qDebug()<< "i.key() = "<<i.key()<<"         index = " << wsJson["index"];
-                QJsonObject data = UserRepo::instance().deviceParamPush(i.value());
+
+                UserBiz bizUser;
+                JsonObjectResult jResult = bizUser.deviceParamPush(i.value());
+                QJsonObject data  = jResult.data;
+
+                QJsonObject response;
+                response["type"] = "deviceParam";
+                response["data"] = data;
+                if(jResult.isSuccess()){
+                    response["code"] = 200;
+                    response["message"] = "成功";
+                }else{
+                    response["code"] = jResult.errorCode;
+                    response["message"] = "失败";
+                }
 
                 wsJson["index"] = 1;
                 webSocketMap[i.key()] = wsJson;
                 AppContext::instance().setWebSocketB(webSocketMap);
 
-                QJsonObject response;
-                response["type"] = "deviceParam";
-                response["code"] = 200;
-                response["message"] = "成功";
-                response["data"] = data;
                 i.key()->sendTextMessage(QJsonDocument(response).toJson(QJsonDocument::Compact));
             }
         });

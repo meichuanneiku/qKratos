@@ -52,7 +52,7 @@ HttpServer::HttpServer(const int &timeout, QObject *parent): QObject(parent)
         QHttpServerResponse r = std::move(resp);
 
         r = authMiddleware()(std::move(r), req);  // Auth
-        //        r = loggingMiddleware(std::move(r), req);  // Logging
+        r = loggingMiddleware(std::move(r), req);  // Logging
         r = responseMiddleware(std::move(r), req);  // 统一格式 + Recovery
         return r;
     });
@@ -133,6 +133,11 @@ void HttpServer::onNewConnection()
         // 释放断开连接的客户端对象的内存
         pSocket->deleteLater();
 
+#if HTTPSERVER_INSTANCE
+
+#else
+            AppContext::instance().setWebSocketB(m_webClientB);
+#endif
     });
 
     m_webClients << pSocket;
@@ -173,6 +178,14 @@ QHttpServerResponse HttpServer::responseMiddleware(QHttpServerResponse &&r, cons
         //        Logger::log(Logger::Error, "Response processing failed");
         return QHttpServerResponse(QHttpServerResponse::StatusCode::InternalServerError);
     }
+}
+
+QHttpServerResponse HttpServer::loggingMiddleware(QHttpServerResponse &&r, const QHttpServerRequest &req)
+{
+    // 日志请求/响应
+    qInfo() << QString("Request: %1 %2").arg(methodToString(req.method()), req.url().path());
+    qInfo() << QString("Response: %1").arg(static_cast<int>(r.statusCode()));
+    return std::move(r);  // 不修改响应
 }
 
 QString HttpServer::getMessage(int status)

@@ -29,6 +29,7 @@ SOURCES += \
         internal/pkg/cron/cron_scheduler.cpp \
         internal/pkg/cron/jobpanel.cpp \
         internal/pkg/jwt/jwt.cpp \
+        internal/pkg/log/logger.cpp \
         internal/server/http_server.cpp \
         internal/service/run_analyze/runanalyzeserviceimpl.cpp \
         internal/service/user/user_service.cpp
@@ -51,6 +52,7 @@ HEADERS += \
     internal/pkg/error/error_code.h \
     internal/pkg/global/global.h \
     internal/pkg/jwt/jwt.h \
+    internal/pkg/log/logger.h \
     internal/pkg/middleware/auth.h \
     internal/pkg/permission/data_scope.h \
     internal/pkg/response/response.h \

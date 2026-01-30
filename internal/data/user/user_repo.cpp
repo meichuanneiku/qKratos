@@ -201,14 +201,15 @@ QueryResult UserRepo::ListUsers(const int &systemId, const QString &fxtid, const
     return qResult;
 }
 
-QJsonObject UserRepo::deviceParamPush(const QJsonObject &doc)
+QueryResult UserRepo::deviceParamPush(const int &SJJG, const int &index, const QJsonArray &xhdIdArray)
 {
-    QJsonObject result;
-    int SJJG = doc["SJJG"].toInt();
-    int index = doc["index"].toInt();
+    QueryResult qResult;
+
+//    int SJJG = doc["SJJG"].toInt();
+//    int index = doc["index"].toInt();
     QString currentTime =  QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
 
-    QJsonArray xhdIdArray = doc["XHDIDLB"].toArray();
+//    QJsonArray xhdIdArray = doc["XHDIDLB"].toArray();
 
     // 1. 生成独立占位符（关键！）
     QStringList placeholders;
@@ -242,8 +243,6 @@ QJsonObject UserRepo::deviceParamPush(const QJsonObject &doc)
     query.addBindValue(currentTime);  // 起始时间
     query.addBindValue(currentTime);  // 结束时间
 
-    if(!index)
-        doc["index"] = 1;
     if (!query.exec()) {
         // 记录真实错误（仅内部日志，不暴露给用户）
         qWarning() << "Database query failed:" << query.lastError().text()
@@ -254,48 +253,10 @@ QJsonObject UserRepo::deviceParamPush(const QJsonObject &doc)
             qWarning() << i.key().toUtf8().data() << ": "
                        << i.value().toString().toUtf8().data();
         }
-        return result;
+        qResult.errorCode = UnknownError;
+        return qResult;
     }
 
-    // 假设已执行查询，QSqlQuery query 包含结果
-    QJsonArray resultArray;
-
-    // 用于按 XHDID 分组
-    QMap<QString, QJsonObject> groupMap;
-
-    while (query.next()) {
-        QString xhdid = query.value("XHDID").toString();
-        QString ms = query.value("MS").toString();
-        QDateTime time = query.value("time").toDateTime();
-        int value = query.value("value").toInt();
-
-        // 如果是新 XHDID，初始化对象
-        if (!groupMap.contains(xhdid)) {
-            QJsonObject obj;
-            obj["MS"] = ms;
-            obj["XHDID"] = xhdid;
-            obj["data"] = QJsonArray();
-            groupMap[xhdid] = obj;
-        }
-
-        // 构建 data 点（time 用毫秒时间戳）
-        QJsonObject dataPoint;
-        dataPoint["time"] = QString::number(time.toMSecsSinceEpoch());
-        dataPoint["value"] = value;
-
-        // 添加到对应 XHDID 的 data 数组
-        QJsonArray dataArray = groupMap[xhdid]["data"].toArray();
-        dataArray.append(dataPoint);
-        groupMap[xhdid]["data"] = dataArray;
-    }
-
-    // 将分组结果转为数组
-    for (auto it = groupMap.constBegin(); it != groupMap.constEnd(); ++it) {
-        resultArray.append(it.value());
-    }
-
-    result["list"] = resultArray;
-    result["total"] = resultArray.count();
-
-    return result;
+    qResult.query = query;
+    return qResult;
 }

@@ -34,6 +34,10 @@ public:
                               const int& page, const int& pageSize);
 
 
+    JsonObjectResult deviceParamPush(const QJsonObject &doc);
+
+
+
 signals:
     void userCreated(const QJsonObject& user);
 };

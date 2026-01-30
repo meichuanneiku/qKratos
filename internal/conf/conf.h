@@ -3,6 +3,7 @@
 
 
 #include <QString>
+#include <QList>
 
 enum Env
 {
@@ -60,6 +61,20 @@ struct AuthConfig{
     qint64 expires;
 };
 
+struct Cron{
+    QString jobName;
+    QString cronExpr;
+};
+
+struct Log{
+    QString logDir;
+    QString prefix;
+    qint64 maxSize;
+    QString logLevel;
+    bool consoleOutput;
+    bool async;
+};
+
 class Config
 {
 public:
@@ -75,6 +90,10 @@ public:
     const QString& casbinPath() const { return m_casbinPath; }
     const AuthConfig& auth() const { return m_auth; }
 
+
+    const Log& log() const { return m_log; }
+
+    const QList<Cron>& cronList() const { return m_cronList; }
 private:
     static Config* m_instance;
     Config() = default;
@@ -83,5 +102,8 @@ private:
     DataConfig m_data;
     QString m_casbinPath;
     AuthConfig m_auth;
+    Log m_log;
+
+    QList<Cron> m_cronList;
 };
 #endif // CONF_H

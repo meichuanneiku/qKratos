@@ -33,7 +33,7 @@ public:
                           const int& page, const int& pageSize) const;
 
 
-   QJsonObject deviceParamPush(const QJsonObject &doc);
+   QueryResult deviceParamPush(const int &SJJG, const int &index, const QJsonArray &xhdIdArray);
 
 private:
     // 私有构造函数，防止外部实例化

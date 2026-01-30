@@ -1,49 +1,63 @@
 {
-	"server": {
-		"http": {
-			"addr": "0.0.0.0",
-			"port": 8080,
+        "server": {
+                "http": {
+                        "addr": "0.0.0.0",
+                        "port": 8080,
                         "timeout": 2000
-		},
-		"ws": {
-			"addr": "0.0.0.0",
-			"port": 7789
-		}
-	},
-	"data": {
-		"mysql": {
+                },
+                "ws": {
+                        "addr": "0.0.0.0",
+                        "port": 7789
+                }
+        },
+        "data": {
+                "mysql": {
                         "host": "mysql.sqlpub.com",
-			"port": 3306,
+                        "port": 3306,
                         "user": "xinyangme",
                         "password": "y6TuhhtjlidzmwKZ",
                         "dbname": "xinyang_mysql"
-		},
-		"postgresql": {
+                },
+                "postgresql": {
                         "host": "ep-jolly-term-a1grf3se-pooler.ap-southeast-1.aws.neon.tech",
-			"port": 5432,
+                        "port": 5432,
                         "user": "neondb_owner",
                         "password": "npg_8oLcNP5mujZg",
                         "dbname": "postgres"
-		},
-		"dmsql": {
+                },
+                "dmsql": {
                         "host": "192.168.1.111",
-			"port": 5236,
-			"user": "SYSDBA",
-			"password": "Dameng123",
-			"dbname": "DM8",
-			"driverType": "QDM"
-		},
-		"redis": {
-			"addr": "43.252.228.116:6379",
-			"password": "",
-			"db": 0
-		}
-	},
-	"auth": {
-		"jwtKey": "hijbcdefgklmna2324",
-		"expires": 259200
-	},
-	"casbin": {
-		"path": "configs/authz/casbin_model.conf"
-	}
+                        "port": 5236,
+                        "user": "SYSDBA",
+                        "password": "Dameng123",
+                        "dbname": "DM8",
+                        "driverType": "QDM"
+                },
+                "redis": {
+                        "addr": "43.252.228.116:6379",
+                        "password": "",
+                        "db": 0
+                }
+        },
+        "auth": {
+                "jwtKey": "hijbcdefgklmna2324",
+                "expires": 259200
+        },
+        "casbin": {
+                "path": "configs/authz/casbin_model.conf"
+        },
+        "log": {
+                "logDir": "logs",
+                "prefix": "app",
+                "maxSize": "5 * 1024 * 1024",
+                "logLevel": "QtDebugMsg",
+                "consoleOutput": true,
+                "async": true
+        },
+        "cron": [
+                {
+                        "jobName": "deviceParam",
+                        "cronExpr": "*/10 * * * * *"
+                }
+        ]
 }

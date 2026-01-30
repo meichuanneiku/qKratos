@@ -158,3 +158,68 @@ JsonObjectResult UserBiz::UserList(const int &systemId, const QString &fxtid, co
     jResult.data = data;
     return jResult;
 }
+
+JsonObjectResult UserBiz::deviceParamPush(const QJsonObject &doc)
+{
+    JsonObjectResult  jResult;
+    int SJJG = doc["SJJG"].toInt();
+    int index = doc["index"].toInt();
+    QJsonArray xhdIdArray = doc["XHDIDLB"].toArray();
+
+    QueryResult userListResult = UserRepo::instance().deviceParamPush(SJJG, index, xhdIdArray);
+
+    if(!userListResult.isSuccess()){
+        jResult.errorCode = userListResult.errorCode;
+        return jResult;
+    }
+
+    QSqlQuery query = userListResult.query;
+
+
+    // 假设已执行查询，QSqlQuery query 包含结果
+    QJsonArray resultArray;
+
+    // 用于按 XHDID 分组
+    QMap<QString, QJsonObject> groupMap;
+
+    while (query.next()) {
+        QString xhdid = query.value("XHDID").toString();
+        QString ms = query.value("MS").toString();
+        QDateTime time = query.value("time").toDateTime();
+        int value = query.value("value").toInt();
+
+        // 如果是新 XHDID，初始化对象
+        if (!groupMap.contains(xhdid)) {
+            QJsonObject obj;
+            obj["MS"] = ms;
+            obj["XHDID"] = xhdid;
+            obj["data"] = QJsonArray();
+            groupMap[xhdid] = obj;
+        }
+
+        // 构建 data 点（time 用毫秒时间戳）
+        QJsonObject dataPoint;
+        dataPoint["time"] = QString::number(time.toMSecsSinceEpoch());
+        dataPoint["value"] = value;
+
+        // 添加到对应 XHDID 的 data 数组
+        QJsonArray dataArray = groupMap[xhdid]["data"].toArray();
+        dataArray.append(dataPoint);
+        groupMap[xhdid]["data"] = dataArray;
+    }
+
+    // 将分组结果转为数组
+    for (auto it = groupMap.constBegin(); it != groupMap.constEnd(); ++it) {
+        resultArray.append(it.value());
+    }
+
+    QJsonObject result;
+    result["list"] = resultArray;
+    result["total"] = resultArray.count();
+
+
+    jResult.data = result;
+    return jResult;
+
+
+}
