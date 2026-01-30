@@ -84,12 +84,7 @@ public:
      * @param consoleOutput     是否输出到控制台
      * @param async             是否同步
      */
-    void init(const QString& logDir = "logs",
-              const QString& prefix = "",
-              qint64 maxSize = 10 * 1024 * 1024,
-              QtMsgType logLevel = QtDebugMsg,
-              bool consoleOutput = false,
-              bool async = false);
+    void init();
 
     // 设置日志级别
     void setLogLevel(QtMsgType level);
