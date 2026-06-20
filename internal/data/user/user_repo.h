@@ -21,11 +21,14 @@ public:
     }
     //    static UserRepo& instance() { static UserRepo r; return r; }
 
-    void Save(const QJsonObject& u) { storage[u["id"].toInt()] = u; }
-    QSqlQuery FindById(const int& systemId, QString id) const;// { return storage.value(id); }
-    bool Remove(int id);
+    void Save(const int& systemId, const QJsonObject& u);
+    bool Update(const int& systemId, const QJsonObject& u);
+    QueryResult FindById(const int& systemId, QString id) const;
+    bool Remove(const int& systemId, int id);
 
-    QueryResult FindByName(const int& systemId, const QString& name) const;// { return storage.value(id); }
+    QueryResult FindByName(const int& systemId, const QString& name) const;
+
+    QueryResult FindByNameAndPassword(const int& systemId, const QString& name, const QString &password) const;
 
     QueryResult ListUsers(const int& systemId, const QString& fxtid,const QString& jsid,
                           const QString& zxzt, const QString& yhmc,
@@ -36,10 +39,7 @@ public:
    QueryResult deviceParamPush(const int &SJJG, const int &index, const QJsonArray &xhdIdArray);
 
 private:
-    // 私有构造函数，防止外部实例化
     UserRepo() = default;
-
-    QHash<int, QJsonObject> storage;
 };
 
 #endif // USERREPO_H

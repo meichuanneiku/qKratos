@@ -41,11 +41,6 @@ struct Claims {
     }
 };
 
-QString sign(const Claims& claims);     // 签发
-QVariant verify(const QString& token); // 验证
-
-
-//-----------------集成jwt-cpp---------------------
 class JwtHelper {
 public:
     // 签发 Token

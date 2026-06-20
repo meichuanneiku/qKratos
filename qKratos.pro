@@ -25,6 +25,7 @@ SOURCES += \
         internal/conf/conf.cpp \
         internal/data/data.cpp \
         internal/data/user/user_repo.cpp \
+        internal/pkg/cache/redis.cpp \
         internal/pkg/casbin/casbin_dm_adapter.cpp \
         internal/pkg/cron/cron_scheduler.cpp \
         internal/pkg/cron/jobpanel.cpp \

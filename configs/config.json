@@ -43,21 +43,30 @@
                 "jwtKey": "hijbcdefgklmna2324",
                 "expires": 259200
         },
-        "casbin": {
+	"casbin": {
                 "path": "configs/authz/casbin_model.conf"
-        },
-        "log": {
-                "logDir": "logs",
-                "prefix": "app",
-                "maxSize": "5 * 1024 * 1024",
-                "logLevel": "QtDebugMsg",
-                "consoleOutput": true,
-                "async": true
-        },
-        "cron": [
-                {
-                        "jobName": "deviceParam",
-                        "cronExpr": "*/10 * * * * *"
-                }
-        ]
+	},
+	"log": {
+		"logDir": "logs",
+		"prefix": "app",
+		"maxSize": "5 * 1024 * 1024",
+		"logLevel": "QtDebugMsg",
+		"consoleOutput": true,
+		"async": true
+	},
+	"cron": [
+		{
+			"jobName": "deviceParam",
+			"cronExpr": "*/10 * * * * *"
+		}
+	],
+	"table": {
+		"user": "XXGY.YHGL_USER",
+		"user2": "XXGY.YHGL_USER_2",
+		"role": "XXGY.YHGL_JSB",
+		"role2": "XXGY.YHGL_JSB_2",
+		"fun": "XXGY.YHGL_FWKZ",
+		"fun2": "XXGY.YHGL_FWKZ_2",
+		"fxtb": "XXGY.FXTB"
+	}
 }

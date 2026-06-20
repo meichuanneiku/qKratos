@@ -20,11 +20,13 @@ class UserBiz: public QObject
 public:
     explicit UserBiz(QObject* parent = nullptr);
 
-    int CreateUser(const QString& name);
+    int CreateUser(const int& systemId, const QString& name);
     QJsonObject GetUser(const int& systemId, QString condition);
     QJsonObject FindById(const int &systemId, QString id);
+    QJsonObject ListUsers(const int& systemId, const QString& page);
 
-    bool DeleteUser(int id);
+    bool DeleteUser(const int& systemId, int id);
+    bool UpdateUser(const int& systemId, const QJsonObject& user);
 
     JsonObjectResult UserLogin(const int& systemId, const QString& name,const QString& password);
 

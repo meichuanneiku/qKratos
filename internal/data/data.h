@@ -23,15 +23,14 @@ public:
     bool connect();
 
     const Data& data() const { return m_data; }
+    QSqlDatabase db(int systemId = 1) const;
 
     const QString dbError() const { return m_data.db.lastError().text(); }
 private:
     DataBaseManager();
 
-
     static DataBaseManager* m_instance;
 
-private:
     Data m_data;
 };
 

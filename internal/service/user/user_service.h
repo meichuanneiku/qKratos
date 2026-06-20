@@ -11,6 +11,9 @@ class UserServiceImpl
 {
 public:
     QHttpServerResponse CreateUser(const QHttpServerRequest& req);
+    QHttpServerResponse ListUsers(const QHttpServerRequest& request);
+    QHttpServerResponse UpdateUser(const QHttpServerRequest& request);
+    QHttpServerResponse UpdateUserById(const int& systemId, quint64 id, const QJsonObject& data);
     QHttpServerResponse GetUser(const int &systemId, const QRegularExpressionMatch& match);
     QHttpServerResponse DeleteUser(const QRegularExpressionMatch& match);
     QHttpServerResponse GetUserByIdDirect(const int& systemId, const QString& id);

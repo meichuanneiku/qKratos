@@ -5,13 +5,6 @@
 #include <QString>
 #include <QList>
 
-enum Env
-{
-  dev = 0, // 开发环境
-  test = 1, // 测试环境
-  pro = 2 // 正式环境
-};
-
 struct ServerConfig {
     struct Server {
         QString addr;
@@ -20,7 +13,6 @@ struct ServerConfig {
     };
 
     Server http;
-    Server grpc;
     Server ws;
 
 };
@@ -75,20 +67,27 @@ struct Log{
     bool async;
 };
 
+struct TableConfig {
+    QString user;
+    QString user2;
+    QString role;
+    QString role2;
+    QString fun;
+    QString fun2;
+    QString fxtb;
+};
+
 class Config
 {
 public:
     static Config* instance();
-    /* {
-        static Config c;
-        return c;
-    }*/
 
     bool load(const QString& inputPath = "configs/config.yaml");
     const ServerConfig& server() const { return m_server; }
     const DataConfig& data() const { return m_data; }
     const QString& casbinPath() const { return m_casbinPath; }
     const AuthConfig& auth() const { return m_auth; }
+    const TableConfig& tables() const { return m_tables; }
 
 
     const Log& log() const { return m_log; }
@@ -98,12 +97,11 @@ private:
     static Config* m_instance;
     Config() = default;
     ServerConfig m_server;
-
     DataConfig m_data;
     QString m_casbinPath;
     AuthConfig m_auth;
     Log m_log;
-
     QList<Cron> m_cronList;
+    TableConfig m_tables;
 };
 #endif // CONF_H

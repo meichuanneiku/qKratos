@@ -76,18 +76,30 @@ inline QSqlQuery applyDataScope(QSqlQuery query, const QString& tableName, const
         break;
     }
 
-    // 追加 WHERE 条件（支持已有条件）
-    QString sql = query.lastQuery();
-    if (sql.contains("WHERE", Qt::CaseInsensitive)) {
-        sql += " AND " + whereClause;
-    } else {
-        sql += " WHERE " + whereClause;
+    // 保存原始 SQL 和绑定参数（必须在 prepare 之前捕获）
+    QString originalSql = query.lastQuery();
+    QList<QVariant> originalBinds;
+    if (!originalSql.isEmpty()) {
+        originalBinds = query.boundValues().values();
     }
 
-    query.prepare(sql);
-    // 重新绑定原始参数 + 数据权限参数
-    for (int i = 0; i < query.boundValues().size(); ++i) {
-        query.addBindValue(query.boundValue(i));
+    // 构建完整 SQL（无基础 SQL 时从指定表构建）
+    QString fullSql;
+    if (originalSql.isEmpty()) {
+        fullSql = QString("SELECT * FROM %1").arg(tableName);
+    } else {
+        fullSql = originalSql;
+    }
+
+    if (fullSql.contains("WHERE", Qt::CaseInsensitive)) {
+        fullSql += " AND " + whereClause;
+    } else {
+        fullSql += " WHERE " + whereClause;
+    }
+
+    query.prepare(fullSql);
+    for (const auto& v : originalBinds) {
+        query.addBindValue(v);
     }
     for (const auto& v : binds) {
         query.addBindValue(v);

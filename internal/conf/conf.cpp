@@ -107,6 +107,15 @@ bool Config::load(const QString& inputPath)
     m_auth.jwtKey = authObj["jwtKey"].toString();
     m_auth.expires = authObj["expires"].toVariant().toLongLong();
 
+    auto tableObj = root["table"].toObject();
+    m_tables.user = tableObj["user"].toString("XXGY.YHGL_USER");
+    m_tables.user2 = tableObj["user2"].toString("XXGY.YHGL_USER_2");
+    m_tables.role = tableObj["role"].toString("XXGY.YHGL_JSB");
+    m_tables.role2 = tableObj["role2"].toString("XXGY.YHGL_JSB_2");
+    m_tables.fun = tableObj["fun"].toString("XXGY.YHGL_FWKZ");
+    m_tables.fun2 = tableObj["fun2"].toString("XXGY.YHGL_FWKZ_2");
+    m_tables.fxtb = tableObj["fxtb"].toString("XXGY.FXTB");
+
     qInfo() << "Config loaded successfully";
     return true;
 }

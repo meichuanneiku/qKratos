@@ -20,7 +20,7 @@ public:
     DmAdapter() = default;
 
     void LoadPolicy(const std::shared_ptr<casbin::Model>& model) override {
-        auto db = DataBaseManager::instance()->data().db;
+        auto db = DataBaseManager::instance()->db(1);
         if (!db.isOpen()) {
             qCritical() << "Casbin LoadPolicy failed: DB not open";
             return;
@@ -57,7 +57,7 @@ public:
     }
 
     void AddPolicy(std::string sec, std::string p_type, std::vector<std::string> rule) override {
-        auto db = DataBaseManager::instance()->data().db;
+        auto db = DataBaseManager::instance()->db(1);
         if (!db.isOpen()) return;
 
         QSqlQuery query(db);
@@ -70,35 +70,48 @@ public:
     }
 
     void RemovePolicy(std::string sec, std::string p_type, std::vector<std::string> rule) override {
-        auto db = DataBaseManager::instance()->data().db;
+        auto db = DataBaseManager::instance()->db(1);
         if (!db.isOpen()) return;
 
-        QStringList conditions;
+        QStringList placeholders;
         for (size_t i = 0; i < rule.size(); ++i) {
-            conditions << QString("v%1 = '%2'").arg(i).arg(QString::fromStdString(rule[i]));
+            placeholders << QString("v%1 = ?").arg(i);
         }
-        QString sql = QString("DELETE FROM casbin_rule WHERE ptype = '%1' AND %2").arg(QString::fromStdString(p_type)).arg(conditions.join(" AND "));
+        QString sql = QString("DELETE FROM casbin_rule WHERE ptype = ? AND %1").arg(placeholders.join(" AND "));
         QSqlQuery query(db);
-        query.exec(sql);
+        query.prepare(sql);
+        query.addBindValue(QString::fromStdString(p_type));
+        for (const auto& v : rule) {
+            query.addBindValue(QString::fromStdString(v));
+        }
+        query.exec();
     }
 
     void RemoveFilteredPolicy(std::string sec, std::string ptype, int field_index, std::vector<std::string> field_values) override {
-        auto db = DataBaseManager::instance()->data().db;
+        auto db = DataBaseManager::instance()->db(1);
         if (!db.isOpen()) return;
 
-        QStringList conditions;
+        QStringList placeholders;
         for (size_t i = 0; i < field_values.size(); ++i) {
             if (field_values[i].empty()) continue;
-            conditions << QString("v%1 = '%2'").arg(i).arg(QString::fromStdString(field_values[i]));
+            placeholders << QString("v%1 = ?").arg(i);
         }
-        QString sql = QString("DELETE FROM casbin_rule WHERE ptype = '%1' AND %2").arg(QString::fromStdString(ptype)).arg(conditions.join(" AND "));
+        if (placeholders.isEmpty()) return;
+
+        QString sql = QString("DELETE FROM casbin_rule WHERE ptype = ? AND %1").arg(placeholders.join(" AND "));
         QSqlQuery query(db);
-        query.exec(sql);
+        query.prepare(sql);
+        query.addBindValue(QString::fromStdString(ptype));
+        for (const auto& v : field_values) {
+            if (v.empty()) continue;
+            query.addBindValue(QString::fromStdString(v));
+        }
+        query.exec();
     }
 
     bool IsFiltered() override { return false; }
 
-    bool IsValid() override { return DataBaseManager::instance()->data().db.isOpen(); }
+    bool IsValid() override { return DataBaseManager::instance()->db(1).isOpen(); }
 };
 
 class Casbin {
@@ -128,7 +141,7 @@ public:
 #if 0
 private:
     Casbin() {
-        if (!DataBaseManager::instance()->data().db.isOpen()) return;
+        if (!DataBaseManager::instance()->db(1).isOpen()) return;
 
         auto adapter = std::make_shared<DmAdapter>();
         enforcer = std::make_shared<casbin::Enforcer>(Config::instance()->casbinPath().toStdString(), adapter);
@@ -150,7 +163,7 @@ private:
     }
 private:
     Casbin() {
-        if (!DataBaseManager::instance()->data().db.isOpen()) return;
+        if (!DataBaseManager::instance()->db(1).isOpen()) return;
 
         auto adapter = std::make_shared<DmAdapter>();
         enforcer =  std::make_shared<casbin::SyncedEnforcer>(Config::instance()->casbinPath().toStdString(), adapter);

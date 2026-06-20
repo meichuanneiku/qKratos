@@ -8,7 +8,7 @@ using namespace qKratos::Middleware;
 
 UserBiz::UserBiz(QObject* parent) : QObject(parent) {}
 
-int UserBiz::CreateUser(const QString& name)
+int UserBiz::CreateUser(const int& systemId, const QString& name)
 {
     static int nextId = 1000;
     int id = ++nextId;
@@ -18,15 +18,23 @@ int UserBiz::CreateUser(const QString& name)
     user["name"] = name;
     user["created_at"] = QDateTime::currentDateTime().toString(Qt::ISODate);
 
-    UserRepo::instance().Save(user);
+    UserRepo::instance().Save(systemId, user);
 
-    emit userCreated(user);        // 领域事件
+    emit userCreated(user);
     return id;
 }
 
 QJsonObject UserBiz::GetUser(const int& systemId, QString condition)
 {
-
+    QSqlQuery userInfo = UserRepo::instance().FindById(systemId, condition);
+    if (userInfo.isNull("YHID")) {
+        return QJsonObject{};
+    }
+    QJsonObject user;
+    user["YHID"] = userInfo.value(0).toString();
+    user["YHMC"] = userInfo.value(3).toString();
+    user["ZXZT"] = userInfo.value(4).toBool();
+    return user;
 }
 
 QJsonObject UserBiz::FindById(const int& systemId, QString id)
@@ -55,9 +63,31 @@ QJsonObject UserBiz::FindById(const int& systemId, QString id)
     //    };
 }
 
-bool UserBiz::DeleteUser(int id)
+QJsonObject UserBiz::ListUsers(const int& systemId, const QString& page)
 {
-    return UserRepo::instance().Remove(id);
+    QSqlQuery result = UserRepo::instance().ListUsers(systemId, page);
+    QJsonArray users;
+    while (result.next()) {
+        QJsonObject u;
+        u["YHID"] = result.value(0).toString();
+        u["YHMC"] = result.value(3).toString();
+        u["ZXZT"] = result.value(4).toBool();
+        users.append(u);
+    }
+    QJsonObject data;
+    data["users"] = users;
+    data["total"] = users.size();
+    return data;
+}
+
+bool UserBiz::DeleteUser(const int& systemId, int id)
+{
+    return UserRepo::instance().Remove(systemId, id);
+}
+
+bool UserBiz::UpdateUser(const int& systemId, const QJsonObject& user)
+{
+    return UserRepo::instance().Update(systemId, user);
 }
 
 JsonObjectResult UserBiz::UserLogin(const int& systemId, const QString &name, const QString &password)

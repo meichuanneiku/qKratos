@@ -19,10 +19,50 @@ QHttpServerResponse UserServiceImpl::CreateUser(const QHttpServerRequest& req)
     if (name.isEmpty())
         return Status(UserNameEmpty);
 
-    int id = m_biz.CreateUser(name);
+    QByteArray systemId = req.headers().value("systemid").toByteArray();
+    int id = m_biz.CreateUser(systemId.toInt(), name);
 
     QJsonObject body{ {"id", id}, {"name", name} };
     return JsonResponse(body);
+}
+
+QHttpServerResponse UserServiceImpl::ListUsers(const QHttpServerRequest& request)
+{
+    QByteArray systemId = request.headers().value("systemid").toByteArray();
+    QUrlQuery query = request.query();
+    QString page = query.queryItemValue("page");
+    if (page.isEmpty()) page = "0";
+
+    auto result = m_biz.ListUsers(systemId.toInt(), page);
+    return JsonResponse(result);
+}
+
+QHttpServerResponse UserServiceImpl::UpdateUserById(const int& systemId, quint64 id, const QJsonObject& data)
+{
+    QJsonObject obj = data;
+    obj["YHID"] = static_cast<qint64>(id);
+    if (!m_biz.UpdateUser(systemId, obj)) {
+        return Status(UserNotFound);
+    }
+    return JsonResponse(obj);
+}
+
+QHttpServerResponse UserServiceImpl::UpdateUser(const QHttpServerRequest& request)
+{
+    QJsonParseError err;
+    QJsonDocument doc = QJsonDocument::fromJson(request.body(), &err);
+    if (err.error != QJsonParseError::NoError || !doc.isObject()) {
+        return Status(InvalidParams);
+    }
+
+    QByteArray systemId = request.headers().value("systemid").toByteArray();
+    QJsonObject obj = doc.object();
+    if (!obj.contains("YHID")) return Status(UserIdEmpty);
+
+    if (!m_biz.UpdateUser(systemId.toInt(), obj)) {
+        return Status(UserNotFound);
+    }
+    return JsonResponse(obj);
 }
 
 QHttpServerResponse UserServiceImpl::GetUser(const int &systemId, const QRegularExpressionMatch& match)
@@ -43,8 +83,8 @@ QHttpServerResponse UserServiceImpl::DeleteUser(const QRegularExpressionMatch& m
     int id = match.captured(1).toInt(&ok);
     if (!ok) return Status(UserIdInvalid);
 
-    if(!m_biz.DeleteUser(id)){
-
+    // 路由层暂不传递 systemId，使用默认值 1
+    if(!m_biz.DeleteUser(1, id)){
         return Status(UserNotFound);
     }
     return Status();
@@ -61,7 +101,7 @@ QHttpServerResponse UserServiceImpl::GetUserByIdDirect(const int &systemId, cons
 
 QHttpServerResponse UserServiceImpl::DeleteUser(const int &id)
 {
-    m_biz.DeleteUser(id);
+    m_biz.DeleteUser(1, id);
     return Status();
 }
 

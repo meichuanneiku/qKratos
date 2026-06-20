@@ -15,6 +15,8 @@
 #include "../../internal/pkg/cron/cron_scheduler.h"
 #include "../../internal/pkg/cron/jobpanel.h"
 #include "appcontext.h"
+#include "../../internal/pkg/cache/cache_manager.h"
+#include "../../api/docs/v1/docs_route.h"
 
 int main(int argc, char *argv[])
 {
@@ -34,9 +36,9 @@ int main(int argc, char *argv[])
 
     // 支持短参数 -c 和长参数 --config
     QCommandLineOption configOption(QStringList() << "c" << "config",
-                                    "Config file path (yaml/json)",
-                                    "file",                           // value name
-                                    "config/config.yaml");             // 默认值
+                                    "Config file path (json)",
+                                    "file",
+                                    "configs/config.json");
     parser.addOption(configOption);
     parser.process(app);
 
@@ -64,6 +66,11 @@ int main(int argc, char *argv[])
         return -1;
     }
 
+    auto& redisConf = Config::instance()->data().redis;
+    qKratos::Cache::CacheManager::instance().init(redisConf.addr.section(':', 0, 0),
+                                                   redisConf.addr.section(':', 1, 1).toUShort(),
+                                                   redisConf.password, redisConf.db);
+
     ServerConfig serverConfig = Config::instance()->server();
 
 #if HTTPSERVER_INSTANCE
@@ -75,7 +82,10 @@ int main(int argc, char *argv[])
 #else
     HttpServer server(serverConfig.http.timeout);
 
-    server.registerService(new UserServiceImpl, RegisterUserServiceRoutes);
+    static UserServiceImpl userService;
+    server.registerService(&userService, RegisterUserServiceRoutes);
+
+    RegisterDocsRoutes(server);
     // 以后加角色、部门等模块只加一行
     // server.registerService(new RoleServiceImpl, RegisterRoleServiceRoutes);
 
