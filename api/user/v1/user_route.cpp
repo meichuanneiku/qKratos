@@ -13,7 +13,7 @@ void RegisterUserServiceRoutes(QHttpServer& server, UserServiceImpl* impl)
                      return impl->ListUsers(req);
                  });
 
-    server.route("/api/v1/users/<arg>",QHttpServerRequest::Method::Get,
+    server.route("/api/v1/users/<arg>", QHttpServerRequest::Method::Get,
                  [&] (quint64 id, const QHttpServerRequest &request) {
         QByteArray systemId = request.headers().value("systemid").toByteArray();
         return impl->GetUserByIdDirect(systemId.toInt(), QString::number(id));
@@ -29,17 +29,14 @@ void RegisterUserServiceRoutes(QHttpServer& server, UserServiceImpl* impl)
         QJsonObject obj = doc.object();
         obj["YHID"] = static_cast<qint64>(id);
         QByteArray systemId = request.headers().value("systemid").toByteArray();
-        if (!impl->UpdateUserById(systemId.toInt(), id, obj)) {
-            return Status(UserNotFound);
-        }
-        return JsonResponse(obj);
+        auto result = impl->UpdateUserById(systemId.toInt(), id, obj);
+        return result;
     });
 
-    // /v1/user?id=
     server.route("/api/v1/user", QHttpServerRequest::Method::Get,
                   [impl](const QHttpServerRequest &request) {
         return impl->GetUserByIdDirect(request);
-    } );
+    });
 
     // 登录接口：POST /api/v1/login
     server.route("/api/v1/login", QHttpServerRequest::Method::Post,

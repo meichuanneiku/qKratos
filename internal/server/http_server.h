@@ -38,6 +38,8 @@ public:
 
     bool listen(const QString &address = "0.0.0.0", const quint16 &port = 8080);
 
+    QHttpServer& server() { return m_server; }
+
 
     QMap<QWebSocket *, QJsonObject> getWebSocketMap(){return  m_webClientB; }
 public slots:

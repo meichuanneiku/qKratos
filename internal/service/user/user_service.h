@@ -12,6 +12,7 @@ class UserServiceImpl
 public:
     QHttpServerResponse CreateUser(const QHttpServerRequest& req);
     QHttpServerResponse ListUsers(const QHttpServerRequest& request);
+    QHttpServerResponse ListUsers(const int &systemId, const QString &page);
     QHttpServerResponse UpdateUser(const QHttpServerRequest& request);
     QHttpServerResponse UpdateUserById(const int& systemId, quint64 id, const QJsonObject& data);
     QHttpServerResponse GetUser(const int &systemId, const QRegularExpressionMatch& match);
@@ -24,7 +25,12 @@ public:
     QHttpServerResponse GetProfile(const QHttpServerRequest &request);
 
     QHttpServerResponse Login(const int &systemId, const QHttpServerRequest &request);
+    QHttpServerResponse Login(const int &systemId, const QString &username, const QString &password);
     QHttpServerResponse UserList(const int &systemId, const QHttpServerRequest &request);
+    QHttpServerResponse UserList(const int &systemId, const QString &fxtid, const QString &jsid,
+                                const QString &zxzt, const QString &yhmc,
+                                const QString &dlcsCondition, const int &dlcs,
+                                const int &page, const int &pageSize);
 
     //测试web推送
     QJsonObject pollAndPush(const QJsonObject &doc);

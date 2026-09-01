@@ -1,7 +1,7 @@
 QT -= gui
 
-QT += core network httpserver sql
-
+QT += core network httpserver sql concurrent websockets
+QT += concurrent
 TARGET = qratos-server
 
 CONFIG += c++17 console

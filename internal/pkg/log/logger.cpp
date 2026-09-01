@@ -1,4 +1,5 @@
 #include "logger.h"
+#include "../../conf/conf.h"
 
 #include <iostream>
 
@@ -60,6 +61,7 @@ QDebugLogger::~QDebugLogger()
 void QDebugLogger::init()
 {
      Config* pConf = Config::instance();
+     if (!pConf) return;
 
     // 注册消息处理函数
     qInstallMessageHandler([](QtMsgType type, const QMessageLogContext &context, const QString &msg) {
@@ -73,14 +75,21 @@ void QDebugLogger::init()
 
     QMutexLocker locker(&m_mutex);
 
-    m_logDir = logDir;
-    m_filePrefix = prefix;
-    m_maxSize = maxSize;
-    m_logLevel = logLevel;
-    m_consoleOutput = consoleOutput;
+    m_logDir = pConf->log().logDir;
+    m_filePrefix = pConf->log().prefix;
+    m_maxSize = pConf->log().maxSize;
+    // Convert log level string to QtMsgType
+    QString logLevelStr = pConf->log().logLevel;
+    if (logLevelStr.contains("Debug", Qt::CaseInsensitive)) m_logLevel = QtDebugMsg;
+    else if (logLevelStr.contains("Info", Qt::CaseInsensitive)) m_logLevel = QtInfoMsg;
+    else if (logLevelStr.contains("Warning", Qt::CaseInsensitive)) m_logLevel = QtWarningMsg;
+    else if (logLevelStr.contains("Critical", Qt::CaseInsensitive)) m_logLevel = QtCriticalMsg;
+    else m_logLevel = QtDebugMsg;
+    m_consoleOutput = pConf->log().consoleOutput;
 
     // 如果异步模式改变，需要重新设置线程
-    if (m_async != async) {
+    bool asyncEnabled = pConf->log().async;
+    if (m_async != asyncEnabled) {
         if (m_loggerThread) {
             m_loggerThread->stop();
             m_loggerThread->wait();
@@ -88,7 +97,7 @@ void QDebugLogger::init()
             m_loggerThread = nullptr;
         }
 
-        m_async = async;
+        m_async = asyncEnabled;
 
         if (m_async) {
             m_loggerThread = new LoggerThread(this);

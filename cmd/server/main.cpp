@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
     // 初始化日志系统
 #ifdef QT_DEBUG
 #else
-    QDebugLogger::instance()->init();
+    QDebugLogger::instance().init();
 #endif
 
     // 创建唯一调度器实例，生命周期由 QApplication 管理
@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
     static UserServiceImpl userService;
     server.registerService(&userService, RegisterUserServiceRoutes);
 
-    RegisterDocsRoutes(server);
+    RegisterDocsRoutes(server.server());
     // 以后加角色、部门等模块只加一行
     // server.registerService(new RoleServiceImpl, RegisterRoleServiceRoutes);
 

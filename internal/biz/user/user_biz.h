@@ -1,7 +1,6 @@
 #ifndef USERBIZ_H
 #define USERBIZ_H
 
-#include <QObject>
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QSqlQuery>
@@ -14,11 +13,10 @@
 #include "../../pkg/global/global.h"
 
 
-class UserBiz: public QObject
+class UserBiz
 {
-    Q_OBJECT
 public:
-    explicit UserBiz(QObject* parent = nullptr);
+    UserBiz() = default;
 
     int CreateUser(const int& systemId, const QString& name);
     QJsonObject GetUser(const int& systemId, QString condition);
@@ -37,11 +35,6 @@ public:
 
 
     JsonObjectResult deviceParamPush(const QJsonObject &doc);
-
-
-
-signals:
-    void userCreated(const QJsonObject& user);
 };
 
 #endif // USERBIZ_H

@@ -6,8 +6,6 @@
 
 using namespace qKratos::Middleware;
 
-UserBiz::UserBiz(QObject* parent) : QObject(parent) {}
-
 int UserBiz::CreateUser(const int& systemId, const QString& name)
 {
     static int nextId = 1000;
@@ -20,16 +18,16 @@ int UserBiz::CreateUser(const int& systemId, const QString& name)
 
     UserRepo::instance().Save(systemId, user);
 
-    emit userCreated(user);
     return id;
 }
 
 QJsonObject UserBiz::GetUser(const int& systemId, QString condition)
 {
-    QSqlQuery userInfo = UserRepo::instance().FindById(systemId, condition);
-    if (userInfo.isNull("YHID")) {
+    QueryResult qResult = UserRepo::instance().FindById(systemId, condition);
+    if (!qResult.isSuccess()) {
         return QJsonObject{};
     }
+    QSqlQuery userInfo = qResult.query;
     QJsonObject user;
     user["YHID"] = userInfo.value(0).toString();
     user["YHMC"] = userInfo.value(3).toString();
@@ -40,32 +38,26 @@ QJsonObject UserBiz::GetUser(const int& systemId, QString condition)
 QJsonObject UserBiz::FindById(const int& systemId, QString id)
 {
     QJsonObject user;
-    QSqlQuery userInfo = UserRepo::instance().FindById(systemId, id);
-    ////    QJsonObject user;
-    ////
-    if (userInfo.isNull("YHID")){
+    QueryResult qResult = UserRepo::instance().FindById(systemId, id);
+    if (!qResult.isSuccess()) {
         return user;
     }
-    //    qDebug()<<"userInfo.isValid = " << userInfo.isValid();
-    //    qDebug()<<"userInfo.isNull = " <<userInfo.isNull("YHID");
+    QSqlQuery userInfo = qResult.query;
 
     user["YHID"] = userInfo.value(0).toString();
     user["YHMC"] = userInfo.value(3).toString();
     user["ZXZT"] = userInfo.value(4).toBool();
 
     return user;
-    //    return QJsonObject{
-    //        {
-    //            {"YHID", userInfo.value(0).toString()},
-    //            {"YHMC", userInfo.value(3).toString()},
-    //            {"ZXZT", userInfo.value(4).toBool()}
-    //        }
-    //    };
 }
 
 QJsonObject UserBiz::ListUsers(const int& systemId, const QString& page)
 {
-    QSqlQuery result = UserRepo::instance().ListUsers(systemId, page);
+    QueryResult qResult = UserRepo::instance().ListUsers(systemId, "", "", "", "", "", -1, page.toInt(), 20);
+    if (!qResult.isSuccess()) {
+        return QJsonObject{};
+    }
+    QSqlQuery result = qResult.query;
     QJsonArray users;
     while (result.next()) {
         QJsonObject u;

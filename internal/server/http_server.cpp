@@ -9,19 +9,6 @@ using namespace qKratos::Middleware;
 void HttpServer::init(const int &timeout)
 {
     m_server.afterRequest([timeout](QHttpServerResponse&& resp, const QHttpServerRequest&req) {
-<<<<<<< HEAD
-=======
-            resp.setHeader("X-Powered-By", "QKratos/1.0");
-            // 允许的源，* 表示允许所有源
-            resp.setHeader("Access-Control-Allow-Origin", "*");
-            // 允许的请求头
-            resp.setHeader("Access-Control-Allow-Headers", "*");
-            // 允许的请求方法
-            resp.setHeader("Access-Control-Allow-Methods", "*");
-            // 预检请求的有效期（秒）
-            resp.setHeader("Access-Control-Max-Age", "86400");
->>>>>>> 346b751 (audit: 代码审计修复 + 新功能)
-
         // 允许的源，* 表示允许所有源
         resp.setHeader("Access-Control-Allow-Origin", "*");
         // 允许的请求头
@@ -177,10 +164,6 @@ QHttpServerResponse HttpServer::responseMiddleware(QHttpServerResponse &&r, cons
         return JsonResponse(unified, isCustomErrorCode ? QHttpServerResponse::StatusCode::Ok : r.statusCode());
 
     } catch (...) {
-<<<<<<< HEAD
-        //        Logger::log(Logger::Error, "Response processing failed");
-=======
->>>>>>> 346b751 (audit: 代码审计修复 + 新功能)
         return QHttpServerResponse(QHttpServerResponse::StatusCode::InternalServerError);
     }
 }

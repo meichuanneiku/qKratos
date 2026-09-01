@@ -19,8 +19,8 @@ void JobPanel::deviceParam(QString cronExpr)
     }
 
     m_sDeviceParamId = scheduler->addJob(cronExpr.toStdString(), [=]() {
-//        QtConcurrent::run([=]() {
-        QTimer::singleShot(0, this, [=]() {
+        // 使用 QtConcurrent 在线程池中异步执行 DB 查询和推送
+        QtConcurrent::run([=]() {
 #if HTTPSERVER_INSTANCE
             auto webSocketMap = HttpServer::instance().getWebSocketMap();
 #else

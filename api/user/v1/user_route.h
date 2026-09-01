@@ -3,7 +3,6 @@
 #include <QHttpServer>
 #include <QHttpServerRequest>
 
-class UserServiceImpl;   // 前向声明
+class UserServiceImpl;   // forward declaration
 
 void RegisterUserServiceRoutes(QHttpServer& server, UserServiceImpl* impl);
-

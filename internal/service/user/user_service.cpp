@@ -33,7 +33,12 @@ QHttpServerResponse UserServiceImpl::ListUsers(const QHttpServerRequest& request
     QString page = query.queryItemValue("page");
     if (page.isEmpty()) page = "0";
 
-    auto result = m_biz.ListUsers(systemId.toInt(), page);
+    return ListUsers(systemId.toInt(), page);
+}
+
+QHttpServerResponse UserServiceImpl::ListUsers(const int &systemId, const QString &page)
+{
+    auto result = m_biz.ListUsers(systemId, page);
     return JsonResponse(result);
 }
 
@@ -147,8 +152,13 @@ QHttpServerResponse UserServiceImpl::Login(const int &systemId, const QHttpServe
     QString username = obj["username"].toString();
     QString password = obj["password"].toString();
 
+    return Login(systemId, username, password);
+}
+
+QHttpServerResponse UserServiceImpl::Login(const int &systemId, const QString &username, const QString &password)
+{
     if(username.isEmpty() || password.isEmpty()){
-         return Status(Unauthorized);   // 账号或密码错误
+         return Status(Unauthorized);
     }
 
     auto login = m_biz.UserLogin(systemId, username, password);
@@ -169,27 +179,27 @@ QHttpServerResponse UserServiceImpl::UserList(const int &systemId, const QHttpSe
 
     QJsonObject obj = doc.object();
 
-    QString fxtid         = obj["FXTID"].toString();
-    QString jsid          = obj["JSID"].toString();
-    QString zxzt          = obj["ZXZT"].toString();
-    QString yhmc          = obj["YHMC"].toString();
-    QString dlcsCondition = obj["DLCSCondition"].toString();
-    int dlcs              = obj["DLCS"].toInt(-1);
-    int page              = obj["page"].toInt();
-    int pageSize          = obj["pageSize"].toInt();
+    return UserList(systemId,
+                    obj["FXTID"].toString(),
+                    obj["JSID"].toString(),
+                    obj["ZXZT"].toString(),
+                    obj["YHMC"].toString(),
+                    obj["DLCSCondition"].toString(),
+                    obj["DLCS"].toInt(-1),
+                    obj["page"].toInt(),
+                    obj["pageSize"].toInt());
+}
 
-    //判断必填字段
-   /* if(dlcs == -1){
-        return Status(InvalidParams);  // 自定义错误码：参数错误
-    }*/
-
-
+QHttpServerResponse UserServiceImpl::UserList(const int &systemId, const QString &fxtid, const QString &jsid,
+                                              const QString &zxzt, const QString &yhmc,
+                                              const QString &dlcsCondition, const int &dlcs,
+                                              const int &page, const int &pageSize)
+{
     auto userList = m_biz.UserList(systemId, fxtid, jsid, zxzt, yhmc, dlcsCondition, dlcs, page, pageSize);
 
     if (!userList.isSuccess()) return Status(userList.errorCode);
 
     return JsonResponse(userList.data);
-
 }
 
 QJsonObject UserServiceImpl::pollAndPush(const QJsonObject &doc)
