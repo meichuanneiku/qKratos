@@ -16,14 +16,16 @@
                         "port": 3306,
                         "user": "xinyangme",
                         "password": "y6TuhhtjlidzmwKZ",
-                        "dbname": "xinyang_mysql"
+                        "dbname": "xinyang_mysql",
+                        "maxConnections": 20
                 },
                 "postgresql": {
                         "host": "ep-jolly-term-a1grf3se-pooler.ap-southeast-1.aws.neon.tech",
                         "port": 5432,
                         "user": "neondb_owner",
                         "password": "npg_8oLcNP5mujZg",
-                        "dbname": "postgres"
+                        "dbname": "postgres",
+                        "maxConnections": 20
                 },
                 "dmsql": {
                         "host": "192.168.1.111",
@@ -31,7 +33,8 @@
                         "user": "SYSDBA",
                         "password": "Dameng123",
                         "dbname": "DM8",
-                        "driverType": "QDM"
+                        "driverType": "QDM",
+                        "maxConnections": 20
                 },
                 "redis": {
                         "addr": "43.252.228.116:6379",

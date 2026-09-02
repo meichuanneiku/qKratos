@@ -25,6 +25,7 @@ struct DataConfig {
         QString user;
         QString password;
         QString dbname;
+        int maxConnections = 10;
     };
 
     struct DmSQL {
@@ -34,6 +35,7 @@ struct DataConfig {
         QString password;
         QString dbname;
         QString driverType;
+        int maxConnections = 10;
     };
 
     struct Redis {

@@ -72,6 +72,7 @@ bool Config::load(const QString& inputPath)
     m_data.mysql.user = mysql["user"].toString();
     m_data.mysql.password = mysql["password"].toString();
     m_data.mysql.dbname = mysql["dbname"].toString();
+    m_data.mysql.maxConnections = mysql["maxConnections"].toInt(10);
 
 
     auto pgsql = dataObj["postgresql"].toObject();
@@ -80,6 +81,7 @@ bool Config::load(const QString& inputPath)
     m_data.pgsql.user = pgsql["user"].toString();
     m_data.pgsql.password = pgsql["password"].toString();
     m_data.pgsql.dbname = pgsql["dbname"].toString();
+    m_data.pgsql.maxConnections = pgsql["maxConnections"].toInt(10);
 
     auto dmsql = dataObj["dmsql"].toObject();
     m_data.dmsql.host = dmsql["host"].toString();
@@ -88,6 +90,7 @@ bool Config::load(const QString& inputPath)
     m_data.dmsql.password = dmsql["password"].toString();
     m_data.dmsql.dbname = dmsql["dbname"].toString();
     m_data.dmsql.driverType = dmsql["driverType"].toString();
+    m_data.dmsql.maxConnections = dmsql["maxConnections"].toInt(10);
 
     auto redis = dataObj["redis"].toObject();
     m_data.redis.addr = redis["addr"].toString();

@@ -1,6 +1,7 @@
 #include "data.h"
 #include "../conf/conf.h"
 #include <QThread>
+#include <QAtomicInt>
 
 DataBaseManager* DataBaseManager::m_instance = nullptr;
 
@@ -20,7 +21,7 @@ DataBaseManager::~DataBaseManager()
     if (m_data.mysqldb.isOpen()) m_data.mysqldb.close();
 }
 
-DataBaseManager::DataBaseManager()
+DataBaseManager::DataBaseManager() : m_activeConnections(0)
 {
     Config* pConf = Config::instance();
     if (!pConf) return;
@@ -72,7 +73,6 @@ QSqlDatabase DataBaseManager::createConnection(int systemId) const
     Config* pConf = Config::instance();
     if (!pConf) return QSqlDatabase();
 
-    // 为每个线程生成唯一的连接名称
     QString connName = QString("thread_%1_%2").arg(reinterpret_cast<quintptr>(QThread::currentThread())).arg(systemId);
 
     switch (systemId) {
@@ -123,13 +123,7 @@ QSqlDatabase DataBaseManager::createConnection(int systemId) const
 
 QSqlDatabase DataBaseManager::db(int systemId)
 {
-    // 主线程使用原始连接（向后兼容）
-    // Qt 5.12 QSqlDatabase 没有 thread() 方法，通过 connectionName 判断
-    QString currentConnName = QSqlDatabase::connectionNames().isEmpty()
-        ? QString()
-        : QSqlDatabase::connectionNames().first();
-
-    // 非主线程使用线程本地连接
+    // 非主线程使用线程本地连接（QThreadStorage 自动管理生命周期）
     if (m_threadLocalDb.hasLocalData()) {
         QSqlDatabase& cached = m_threadLocalDb.localData();
         if (cached.isOpen()) return cached;
@@ -144,10 +138,38 @@ QSqlDatabase DataBaseManager::db(int systemId)
         }
     }
 
+    // 检查连接数限制
+    int current = m_activeConnections.load();
+    int max = maxConnections();
+    if (current >= max) {
+        qWarning() << "DataBaseManager: connection limit reached"
+                   << current << "/" << max
+                   << "- thread" << QThread::currentThread();
+        // 返回空连接，调用方需要检查 isValid()
+        return QSqlDatabase();
+    }
+
     // 首次调用，创建线程本地连接
+    m_activeConnections.ref();
     QSqlDatabase conn = createConnection(systemId);
     if (conn.isOpen()) {
         m_threadLocalDb.setLocalData(conn);
+    } else {
+        m_activeConnections.deref();
     }
     return conn;
+}
+
+int DataBaseManager::maxConnections() const
+{
+    Config* pConf = Config::instance();
+    if (!pConf) return 10;
+
+    // 取三个数据库配置中的最大值作为总限制
+    int max = pConf->data().dmsql.maxConnections;
+    if (pConf->data().pgsql.maxConnections > max)
+        max = pConf->data().pgsql.maxConnections;
+    if (pConf->data().mysql.maxConnections > max)
+        max = pConf->data().mysql.maxConnections;
+    return max;
 }
